@@ -1,0 +1,23 @@
+{
+  "name": "widstudios/crm-marketing",
+  "description": "Modular CRM Marketing in PHP 8.0 with SQLite",
+  "type": "project",
+  "require": {
+    "php": ">=8.0",
+    "ext-pdo": "*",
+    "ext-sqlite3": "*"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^9.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "CRMMarketing\\": "core/",
+      "CRMMarketing\\Modules\\": "modules/"
+    }
+  },
+  "scripts": {
+    "post-install-cmd": "php core/install.php",
+    "test": "phpunit tests/"
+  }
+}
