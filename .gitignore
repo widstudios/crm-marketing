@@ -1,20 +1,26 @@
-vendor/
-node_modules/
+# Dipendenze
+/vendor/
+/node_modules/
+
+# Ambiente
 .env
-.env.local
-.env.*.php
-*.sqlite
-*.sqlite3
-storage/database/
-logs/
-*.log
-temp/
-cache/
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
+.env.*
+!.env.example
+
+# Build
+/public/build/
+/public/hot
+/storage/*.key
+
+# Strumenti
+.phpunit.result.cache
+.phpstan.cache/
+.php-cs-fixer.cache
+/coverage/
+
+# Sistema
 .DS_Store
-build/
-dist/
+Thumbs.db
+*.swp
+.idea/
+.vscode/

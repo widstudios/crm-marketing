@@ -1,0 +1,43 @@
+# CODEOWNERS — WidStudios AI Factory
+#
+# Unico file in cui compaiono nomi/team. La mappa ruolo -> area vive in
+# governance/ownership.md e non va duplicata qui.
+#
+# Sintassi: <pattern> <@utente|@org/team>
+# Sostituire i segnaposto con i team reali prima dell'uso in produzione.
+
+# Default: tutto il repository
+*                       @widstudios/factory-owners
+
+# Documentazione ed esempi
+/docs/                  @widstudios/docs-owners
+/examples/              @widstudios/docs-owners
+
+# Architettura e decisioni
+/architecture/          @widstudios/architecture-owners
+
+# Standard e verifiche
+/rules/                 @widstudios/standards-owners
+/checklists/            @widstudios/standards-owners
+
+# Agenti, prompt e processo
+/agents/                @widstudios/agents-owners
+/prompts/               @widstudios/agents-owners
+/workflows/             @widstudios/agents-owners
+
+# Codice riutilizzabile
+/foundation/            @widstudios/foundation-owners
+/templates/             @widstudios/foundation-owners
+/modules/               @widstudios/foundation-owners
+
+# Infrastruttura
+/deployment/            @widstudios/devops-owners
+/tooling/               @widstudios/devops-owners
+/.github/               @widstudios/devops-owners
+
+# Governance
+/governance/            @widstudios/factory-owners
+/CLAUDE.md              @widstudios/factory-owners
+
+# Archivio congelato
+/legacy/                @widstudios/factory-owners
