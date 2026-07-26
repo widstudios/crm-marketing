@@ -1,0 +1,80 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{ Namespace }};
+
+/**
+ * {{-- Che cosa rappresenta questo insieme di stati nel dominio. --}}
+ *
+ * Uno stato non e' una stringa in una colonna: e' una macchina a stati.
+ * canTransitionTo() e' l'unico posto in cui la sequenza e' scritta, e di
+ * conseguenza l'unico da modificare quando cambia.
+ *
+ * Il tipo sottostante e' string e non int: in un dump del database
+ * 'expired' si legge, 3 no.
+ */
+enum {{ Class }}: string
+{
+    // case Draft = 'draft';
+    // case Available = 'available';
+    // case Expired = 'expired';
+
+    /**
+     * Etichetta per l'interfaccia, in italiano.
+     *
+     * Il match e' esaustivo senza ramo default: aggiungere un case senza
+     * aggiungere l'etichetta produce un errore in fase di analisi statica,
+     * invece di una stringa vuota in produzione.
+     */
+    public function label(): string
+    {
+        return match ($this) {
+            // self::Draft => 'Bozza',
+            // self::Available => 'Disponibile',
+            // self::Expired => 'Scaduto',
+        };
+    }
+
+    /**
+     * Colore per i badge dell'interfaccia.
+     */
+    public function color(): string
+    {
+        return match ($this) {
+            // self::Draft => 'gray',
+            // self::Available => 'success',
+            // self::Expired => 'danger',
+        };
+    }
+
+    /**
+     * Gli stati raggiungibili da questo.
+     *
+     * @return list<self>
+     */
+    public function allowedTransitions(): array
+    {
+        return match ($this) {
+            // self::Draft => [self::Available],
+            // self::Available => [self::Expired],
+            // self::Expired => [],
+        };
+    }
+
+    public function canTransitionTo(self $target): bool
+    {
+        return in_array($target, $this->allowedTransitions(), strict: true);
+    }
+
+    /**
+     * {{-- Aggiungere i predicati che il dominio usa davvero, con il nome
+     *      della domanda a cui rispondono: isFinal(), allowsRelease(),
+     *      requiresApproval(). Un predicato con un nome vago diventa un
+     *      insieme di condizioni copiate in giro. --}}
+     */
+    // public function isFinal(): bool
+    // {
+    //     return $this->allowedTransitions() === [];
+    // }
+}

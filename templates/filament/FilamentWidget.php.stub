@@ -1,0 +1,75 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{ Namespace }};
+
+use Filament\Widgets\StatsOverviewWidget;
+use Filament\Widgets\StatsOverviewWidget\Stat;
+use WidStudios\Foundation\Concerns\InteractsWithTenantCache;
+
+/**
+ * {{-- Quale informazione mostra, e a chi serve. --}}
+ *
+ * I widget sono la ragione piu' frequente per cui la dashboard e' la pagina
+ * piu' lenta del gestionale: ognuno esegue le proprie query, e nessuno le
+ * vede perche' sembrano poche.
+ *
+ * Due difese, entrambe obbligatorie: la cache tenant-scoped e la verifica del
+ * permesso.
+ */
+final class {{ Class }} extends StatsOverviewWidget
+{
+    use InteractsWithTenantCache;
+
+    protected static ?int $sort = 1;
+
+    /**
+     * Il widget compare solo a chi ha il permesso corrispondente.
+     */
+    public static function canView(): bool
+    {
+        return auth()->user()?->can('{{ permission }}.view') ?? false;
+    }
+
+    /**
+     * @return list<Stat>
+     */
+    protected function getStats(): array
+    {
+        // La chiave e' tenant-scoped: senza, il secondo cliente vede i numeri
+        // del primo. E' l'errore piu' costoso che un widget possa contenere,
+        // perche' i dati sono plausibili e nessuno si accorge che sono di un
+        // altro.
+        $stats = $this->tenantRemember('{{ module }}.widget.{{ permission }}', 300, function (): array {
+            return [
+                // 'total' => {{ Entity }}::query()->count(),
+            ];
+        });
+
+        return [
+            // Stat::make('Totale', $stats['total'])
+            //     ->description('…')
+            //     ->color('success'),
+        ];
+    }
+}
+
+{{--
+INVALIDAZIONE
+
+Un valore memorizzato senza invalidazione mostra dati vecchi come se fossero
+attuali. Due strade:
+
+  - scadenza breve, quando un ritardo di qualche minuto e' accettabile;
+  - invalidazione esplicita dall'Action che modifica i dati, quando non lo e'.
+
+La seconda richiede un test che verifichi l'invalidazione dopo la mutazione:
+senza, il difetto si scopre da un utente che segnala numeri sbagliati.
+
+CALCOLI PESANTI
+
+Oltre i 400 ms il widget non calcola durante il rendering: legge un valore
+precalcolato da un job pianificato. Un widget lento rallenta l'intera
+dashboard, e la dashboard e' la prima pagina che tutti aprono.
+--}}

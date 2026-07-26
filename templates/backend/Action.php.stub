@@ -1,0 +1,92 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{ Namespace }};
+
+use Illuminate\Database\DatabaseManager;
+use WidStudios\Foundation\Actions\BaseAction;
+use WidStudios\Foundation\Concerns\RecordsAudit;
+
+/**
+ * {{-- Quale operazione del dominio rappresenta, in una riga, con le parole
+ *      del committente. --}}
+ *
+ * Un'Action e' final e ha un solo metodo pubblico: due metodi pubblici
+ * significano due operazioni, e vanno separate.
+ */
+final class {{ Class }} extends BaseAction
+{
+    use RecordsAudit;
+
+    public function __construct(
+        DatabaseManager $database,
+        // private readonly {{ Entity }}Repository ${{ entities }},
+    ) {
+        parent::__construct($database);
+    }
+
+    /**
+     * Riceve un DTO, mai una Request.
+     *
+     * E' il vincolo che decide se questa operazione sara' invocabile da un
+     * comando, da un job e da un'importazione, oppure se andra' riscritta tre
+     * volte con tre versioni delle stesse regole.
+     */
+    public function execute({{ Entity }}Data $data): {{ Entity }}
+    {
+        {{-- 1. PRECONDIZIONI, fuori dalla transazione dove possibile.
+                Non sono validazione di formato -- quella e' della Form Request --
+                ma verifiche di dominio: esiste, e' nello stato giusto, e' coerente
+                con altro. --}}
+
+        return $this->transaction(function () use ($data): {{ Entity }} {
+            {{-- 2. LETTURA CON LOCK, se l'operazione legge, decide e scrive.
+                    Senza lockForUpdate() due richieste simultanee superano
+                    entrambe la stessa verifica di disponibilita'. --}}
+
+            // ${{ entity }} = $this->{{ entities }}->findForUpdateOrFail($data->{{ entity }}Id);
+
+            {{-- 3. INVOCAZIONE DEL DOMINIO.
+                    Le regole stanno nell'entita', non qui. Se in questo punto
+                    compare un `if` su una condizione di business, appartiene
+                    al dominio. --}}
+
+            // ${{ entity }}->assertUsable();
+            // ${{ entity }}->…($data->…);
+            // $this->{{ entities }}->save(${{ entity }});
+
+            {{-- 4. AUDIT, se l'operazione tocca dati sensibili.
+                    Solo identificativi e valori di stato: mai contenuti. --}}
+
+            // $this->audit('{{ permission }}.…', ${{ entity }}->getKey(), [
+            //     'previous_status' => ${{ entity }}->getOriginal('status'),
+            // ]);
+
+            {{-- 5. EFFETTI DOPO IL COMMIT.
+                    Un evento emesso dentro la transazione puo' essere gestito da un
+                    listener in coda che parte prima del commit: il listener cerca la
+                    riga, non la trova, e fallisce. Il difetto dipende dal carico,
+                    quindi non si riproduce in sviluppo. --}}
+
+            // $this->afterCommit(function () use (${{ entity }}): void {
+            //     event(new {{ Entity }}Registered(${{ entity }}->getKey()));
+            //     Recalculate{{ Entity }}Job::dispatch(${{ entity }}->getKey())->afterCommit();
+            // });
+
+            // return ${{ entity }};
+        });
+    }
+}
+
+{{--
+CIO' CHE UN'ACTION NON FA (rules/action-pattern.md)
+
+  - non autorizza: l'autorizzazione sta nel punto di ingresso, perche' un job
+    notturno o un'importazione devono poterla eseguire senza un utente;
+  - non valida il formato: lo fa la Form Request;
+  - non contiene le regole: stanno nel dominio;
+  - non usa auth(), request(), session(): dipendono dal contesto web, che in
+    un job non esiste;
+  - non chiama sistemi esterni dentro la transazione.
+--}}

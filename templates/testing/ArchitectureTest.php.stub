@@ -1,0 +1,98 @@
+<?php
+
+declare(strict_types=1);
+
+/*
+ * Test di architettura — {{ Project }}
+ *
+ * Destinazione: tests/Architecture/
+ *
+ * ESISTONO DAL PRIMO GIORNO (rules/testing.md R24).
+ *
+ * Aggiungerli dopo significa scoprire cinquanta violazioni insieme, e a quel
+ * punto la scelta razionale diventa disattivare il test. Aggiunti subito,
+ * ognuno costa una riga e intercetta la violazione nel momento in cui viene
+ * scritta.
+ *
+ * Sono anche il modo corretto di far smettere un rilievo che si ripete: se lo
+ * stesso difetto viene segnalato due volte in revisione, il posto giusto per
+ * la terza volta e' qui.
+ */
+
+// --- Livelli ---------------------------------------------------------------
+
+arch('il dominio non dipende dal framework')
+    ->expect('App\Domain')
+    ->not->toUse('Illuminate');
+
+arch('i controller non usano l\'infrastruttura')
+    ->expect('App\Http\Controllers')
+    ->not->toUse('App\Infrastructure');
+
+arch('il dominio non conosce l\'applicazione')
+    ->expect('App\Domain')
+    ->not->toUse('App\Application');
+
+// --- Action ----------------------------------------------------------------
+
+arch('le action sono final con un solo metodo pubblico')
+    ->expect('App\Application')
+    ->classes()->toHaveSuffix('Action')
+    ->toBeFinal()
+    ->toHaveMethod('execute');
+
+arch('le action non autorizzano')
+    // L'autorizzazione appartiene al punto di ingresso: un job notturno deve
+    // poter eseguire la stessa operazione senza un utente.
+    ->expect('App\Application')
+    ->not->toUse(['Illuminate\Support\Facades\Gate', 'Illuminate\Support\Facades\Auth']);
+
+arch('i DTO sono readonly')
+    ->expect('App\Application')
+    ->classes()->toHaveSuffix('Data')
+    ->toBeReadonly();
+
+// --- Multitenancy ----------------------------------------------------------
+
+arch('ogni job usa TenantAware')
+    ->expect('App\Jobs')
+    ->toUseTrait(WidStudios\Foundation\Concerns\TenantAware::class);
+
+arch('nessun job sovrascrive middleware()')
+    // Sovrascriverlo rimuoverebbe il ripristino del contesto tenant senza che
+    // nulla lo segnali. Si sovrascrive jobMiddleware().
+    ->expect('App\Jobs')
+    ->not->toHaveMethod('middleware');
+
+// --- Igiene ----------------------------------------------------------------
+
+arch('tipizzazione stretta in ogni file')
+    ->expect('App')
+    ->toUseStrictTypes();
+
+arch('nessun helper di debug residuo')
+    ->expect(['dd', 'dump', 'var_dump', 'ray', 'print_r'])
+    ->not->toBeUsed();
+
+arch('nessun env() fuori da config')
+    // Con la cache di configurazione attiva env() restituisce null, e il
+    // difetto si manifesta solo in produzione.
+    ->expect('env')
+    ->not->toBeUsed();
+
+arch('nessun Observer')
+    ->expect('App\Observers')
+    ->toBeEmpty();
+
+// --- Presentazione ---------------------------------------------------------
+
+arch('i Filament Resource non usano l\'infrastruttura')
+    ->expect('App\Filament')
+    ->not->toUse('App\Infrastructure');
+
+{{--
+AGGIUNGERE UN TEST DI ARCHITETTURA
+
+Criterio: lo stesso rilievo e' comparso in revisione due volte. Alla terza non
+si segnala: si scrive la riga qui, e il difetto smette di esistere.
+--}}

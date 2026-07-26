@@ -1,0 +1,64 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Database\Factories;
+
+use Illuminate\Database\Eloquent\Factories\Factory;
+
+/**
+ * Factory per {{ Entity }}.
+ *
+ * Produce entita' valide **secondo il dominio**, non solo secondo lo schema.
+ * Una factory che genera dati che il dominio rifiuterebbe rende i test
+ * inaffidabili: verificano situazioni che in produzione non possono esistere,
+ * e non verificano quelle che possono.
+ *
+ * @extends Factory<{{ Entity }}>
+ */
+final class {{ Entity }}Factory extends Factory
+{
+    protected $model = {{ Entity }}::class;
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function definition(): array
+    {
+        return [
+            // 'number' => 'LOT-'.fake()->unique()->numerify('####'),
+            // 'quantity' => fake()->randomFloat(3, 1, 500),
+            // 'expiry_date' => fake()->dateTimeBetween('+1 month', '+2 years'),
+            // 'status' => {{ Entity }}Status::Available,
+        ];
+    }
+
+    // ---------------------------------------------------------------------
+    // Stati nominati
+    //
+    // Ogni caso limite del dominio ha il suo stato, con il nome del caso. E'
+    // cio' che rende leggibile un test -- {{ Entity }}::factory()->expired() --
+    // e che documenta quali casi limite il dominio conosce.
+    // ---------------------------------------------------------------------
+
+    // public function expired(): static
+    // {
+    //     return $this->state(fn (): array => [
+    //         'expiry_date' => fake()->dateTimeBetween('-1 year', '-1 day'),
+    //         'status' => {{ Entity }}Status::Expired,
+    //     ]);
+    // }
+
+    // public function empty(): static
+    // {
+    //     return $this->state(fn (): array => ['quantity' => 0]);
+    // }
+}
+
+{{--
+NESSUNA RELAZIONE NON NECESSARIA
+
+Una factory che crea automaticamente l'intero albero di relazioni rende i test
+lenti in modo invisibile: ogni test paga la creazione di dati che non usa. Le
+relazioni si creano nel test che ne ha bisogno.
+--}}

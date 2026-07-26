@@ -1,0 +1,71 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{ Namespace }};
+
+use Closure;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
+
+/**
+ * {{-- Che cosa verifica o modifica, e su quali rotte va applicato. --}}
+ *
+ * Un middleware fa una cosa sola. Il suo nome la dice, ed e' un verbo o una
+ * condizione: EnsureTenantIsActive, RedirectIfAuthenticated, LogSlowRequests.
+ *
+ * Un middleware che fa due cose e' due middleware: cosi' si puo' applicarne
+ * uno senza l'altro, che e' esattamente cio' che serve il giorno in cui una
+ * rotta ha bisogno solo del primo.
+ */
+final class {{ Class }}
+{
+    public function __construct(
+        // private readonly …,
+    ) {}
+
+    public function handle(Request $request, Closure $next): Response
+    {
+        // Verifiche PRIMA della richiesta.
+        //
+        // Un middleware che nega non spiega perche' a chi non ha diritto di
+        // saperlo: per una risorsa che l'utente non deve vedere, 404 e' la
+        // risposta corretta, perche' 403 ne confermerebbe l'esistenza.
+
+        $response = $next($request);
+
+        // Modifiche DOPO la richiesta: intestazioni, registrazioni.
+        //
+        // Attenzione: qui la risposta puo' essere gia' stata inviata in
+        // streaming. Modificarla in quel caso non ha effetto e non produce
+        // errori, il che rende il difetto difficile da vedere.
+
+        return $response;
+    }
+
+    /**
+     * Eseguito dopo che la risposta e' stata inviata al browser.
+     *
+     * E' il posto giusto per le operazioni che non devono far attendere
+     * l'utente e non modificano la risposta.
+     */
+    // public function terminate(Request $request, Response $response): void
+    // {
+    // }
+}
+
+{{--
+ORDINE
+
+L'ordine dei middleware conta piu' di quanto sembri: uno che presuppone il
+contesto tenant deve girare DOPO InitializeTenancy, e uno che verifica
+l'autenticazione deve girare prima di quelli che leggono l'utente. L'ordine e'
+dichiarato in bootstrap/app.php, ed e' parte del comportamento del sistema.
+
+CIO' CHE NON VA IN UN MIDDLEWARE
+
+  - logica di business            → Action
+  - query pesanti                 → eseguite a ogni richiesta della rotta
+  - autorizzazione su una risorsa → Policy: il middleware non conosce la risorsa
+  - piu' di una responsabilita'   → due middleware
+--}}

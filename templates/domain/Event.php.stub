@@ -1,0 +1,28 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{ Namespace }};
+
+/**
+ * {{-- Che cosa e' successo. Il nome e' al passato perche' un evento e' un
+ *      fatto avvenuto, non un comando: MovementRegistered, non
+ *      RegisterMovement. --}}
+ *
+ * Trasporta identificatori, non model. Due ragioni:
+ *
+ *   - un evento puo' essere gestito minuti dopo, in un altro processo, e il
+ *     model serializzato potrebbe non corrispondere piu' alla riga;
+ *   - il payload resta piccolo, il che conta quando l'evento attraversa una
+ *     coda.
+ *
+ * Chi lo riceve ricarica cio' che gli serve.
+ */
+final readonly class {{ Class }}
+{
+    public function __construct(
+        public int ${{ entity }}Id,
+        // public string $tenantSlug,
+        // public ?int $actorId = null,
+    ) {}
+}

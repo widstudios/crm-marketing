@@ -1,0 +1,55 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{ Namespace }};
+
+use Filament\Pages\Page;
+
+/**
+ * {{-- Che cosa permette di fare questa pagina, e perche' non e' un Resource. --}}
+ *
+ * Una pagina personalizzata esiste quando l'interazione non e' un CRUD su
+ * un'entita': una procedura guidata, un cruscotto operativo, uno strumento di
+ * importazione, una schermata di riconciliazione.
+ *
+ * Se sta diventando un elenco con filtri e azioni per riga, era un Resource.
+ */
+final class {{ Class }} extends Page
+{
+    protected static ?string $navigationIcon = 'heroicon-o-adjustments-horizontal';
+
+    protected static string $view = 'filament.pages.{{ module }}.{{ entity }}';
+
+    protected static ?string $title = '{{-- titolo in italiano --}}';
+
+    protected static ?string $navigationGroup = '{{-- gruppo di menu --}}';
+
+    /**
+     * Le pagine personalizzate non hanno autorizzazione automatica: non c'e'
+     * un model, quindi non c'e' una Policy che Filament possa invocare da
+     * solo. E' il punto in cui una pagina resta aperta a tutti senza che
+     * nessuno se ne accorga.
+     */
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->can('{{ permission }}.manage') ?? false;
+    }
+
+    /**
+     * Ogni metodo pubblico di una pagina Livewire e' invocabile dal client.
+     *
+     * Non e' un dettaglio implementativo: chiunque abbia la pagina aperta puo'
+     * chiamarlo con i parametri che preferisce. Ogni metodo pubblico che muta
+     * qualcosa autorizza esplicitamente, sempre.
+     */
+    public function submit(): void
+    {
+        $this->authorize('{{ permission }}.manage');
+
+        // La logica sta nell'Action, non qui.
+        // app({{ Class }}Action::class)->execute(…);
+
+        $this->dispatch('…');
+    }
+}

@@ -1,0 +1,65 @@
+<?php
+
+declare(strict_types=1);
+
+use {{ Namespace }}\{{ Class }};
+
+/*
+ * Test unitario per {{ Class }}.
+ *
+ * Destinazione: tests/Unit/
+ *
+ * Un test unitario non tocca il database e non avvia il framework. Non e' una
+ * regola di purezza: se una classe ha bisogno del database per essere
+ * verificata, ha una dipendenza che non dovrebbe avere, e il test lo rivela
+ * prima che il difetto si propaghi.
+ *
+ * Candidati obbligatori, con copertura al 100%:
+ *   enum di dominio · value object · calcoli · politiche di dominio
+ */
+
+it('{{-- descrive il COMPORTAMENTO, in italiano: "rifiuta una partita IVA con
+        formato errato", non "testa il metodo validate" --}}', function (): void {
+    // Predisposizione: solo cio' che serve a questo comportamento.
+    // ${{ entity }} = new {{ Class }}(…);
+
+    // Azione e verifica.
+    // expect(${{ entity }}->…())->toBe(…);
+});
+
+it('rifiuta {{-- la condizione non valida --}}', function (): void {
+    // Il test del percorso di errore si scrive per PRIMO: e' quello che si
+    // dimentica, ed e' quello che protegge.
+    //
+    // expect(fn () => new {{ Class }}(''))->toThrow(Invalid{{ Class }}::class);
+});
+
+it('rifiuta i formati non validi', function (string $value): void {
+    // I test parametrici si usano per i casi limite dello STESSO
+    // comportamento. Casi limite di comportamenti diversi restano test
+    // separati: altrimenti il nome non descrive piu' nulla.
+    //
+    // expect(fn () => new {{ Class }}($value))->toThrow(Invalid{{ Class }}::class);
+})->with([
+    // '',
+    // 'IT123',
+    // '12345678901',
+]);
+
+{{--
+CIO' CHE NON VA TESTATO
+
+  it('assegna il nome', function (): void {
+      $supplier = new Supplier();
+      $supplier->name = 'ACME';
+      expect($supplier->name)->toBe('ACME');
+  });
+
+Verifica il funzionamento di PHP, non del dominio: non puo' fallire per un
+difetto reale, alza la copertura e non protegge da nulla.
+
+FALSIFICARE I TEST
+
+Ogni tanto: rompere deliberatamente il codice che un test dovrebbe proteggere.
+Se il test resta verde, non verifica cio' che dichiara.
+--}}

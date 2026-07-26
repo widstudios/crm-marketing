@@ -1,0 +1,165 @@
+# ---------------------------------------------------------------------------
+# Pipeline — {{ Project }}
+#
+# La pipeline non esiste per dire "verde": esiste per rifiutare cio' che non
+# rispetta le regole. Ogni verifica qui sotto corrisponde a una regola, e ogni
+# regola senza una verifica automatica e' una regola che verra' violata.
+#
+# I gate girano in PARALLELO: un ritorno in dieci minuti viene letto, uno in
+# quaranta viene ignorato e la pipeline diventa un ostacolo invece di uno
+# strumento.
+# ---------------------------------------------------------------------------
+
+name: Quality gate
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PHP_VERSION: '8.4'
+
+jobs:
+
+  lint:
+    name: Stile
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          coverage: none
+      - run: composer install --prefer-dist --no-interaction --no-progress
+      - run: composer lint
+
+  analyse:
+    name: Analisi statica
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          coverage: none
+      - run: composer install --prefer-dist --no-interaction --no-progress
+      # Livello 8, senza baseline in crescita: una baseline che si allunga a
+      # ogni commit e' un modo di disattivare l'analisi mantenendone l'aspetto.
+      - run: composer analyse
+
+  test:
+    name: Test (${{ matrix.database }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # Due basi dati, sempre. SQLite e' veloce e permissivo; MySQL e' cio'
+        # che gira in produzione. Difetti su vincoli, tipi e collation
+        # esistono solo sul secondo.
+        database: [sqlite, mysql]
+
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: landlord_testing
+        ports: ['3306:3306']
+        options: >-
+          --health-cmd="mysqladmin ping" --health-interval=5s --health-retries=10
+      redis:
+        image: redis:7-alpine
+        ports: ['6379:6379']
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          coverage: xdebug
+      - run: composer install --prefer-dist --no-interaction --no-progress
+      - run: cp .env.example .env && php artisan key:generate
+
+      # Ordine casuale: intercetta i test che dipendono dallo stato lasciato da
+      # un altro, che altrimenti si scoprono mesi dopo, in modo intermittente.
+      - name: Suite
+        run: php artisan test --order-by=random
+        env:
+          DB_CONNECTION: ${{ matrix.database }}
+
+      # Soglia doppia: complessiva e per ambito critico. Una copertura media
+      # dell'88% puo' nascondere un'Action al 40%, ed e' esattamente li' che
+      # servirebbe.
+      - name: Copertura
+        if: matrix.database == 'sqlite'
+        run: composer test:coverage
+
+  isolation:
+    name: Isolamento tenant
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: root
+        ports: ['3306:3306']
+        options: >-
+          --health-cmd="mysqladmin ping" --health-interval=5s --health-retries=10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+      - run: composer install --prefer-dist --no-interaction --no-progress
+      - run: cp .env.example .env && php artisan key:generate
+
+      # Un job separato perche' e' il gate che non si puo' saltare: verifica i
+      # cinque punti su tenant reali.
+      - run: php artisan test --testsuite=Tenant
+
+      # Il provisioning di un tenant NUOVO: intercetta le migration che
+      # dipendono dai dati esistenti, difetto che rende impossibile attivare
+      # nuovi clienti e che non si vede in nessun altro modo.
+      - run: php artisan tenants:provision --slug=ci-check --force
+
+  security:
+    name: Sicurezza
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Tutta la storia: un segreto rimosso dal working tree resta nei
+          # commit precedenti, e da li' e' recuperabile per sempre.
+          fetch-depth: 0
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+      - run: composer install --prefer-dist --no-interaction --no-progress
+      - run: composer audit
+      - run: php tooling/scripts/check-secrets.php
+      - run: php tooling/scripts/check-security.php
+      - run: php tooling/scripts/check-policies.php
+
+  docs:
+    name: Documentazione
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+      # Link rotti, sezioni obbligatorie mancanti, segnaposto residui.
+      - run: php tooling/scripts/check-docs.php
+
+{{--
+COSA MANCA DI PROPOSITO
+
+Il deploy non e' qui. Un rilascio richiede decisioni -- finestra, backup
+verificato, piano di ritorno provato -- che una pipeline non puo' prendere.
+Vedi checklists/release-checklist.md.
+--}}

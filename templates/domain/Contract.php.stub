@@ -1,0 +1,30 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{ Namespace }};
+
+/**
+ * {{-- Quale capacita' descrive questo contratto, dal punto di vista del
+ *      dominio. --}}
+ *
+ * I contratti vivono nel **dominio**, le implementazioni nell'infrastruttura.
+ * E' cio' che tiene le dipendenze rivolte verso l'interno: il dominio dichiara
+ * di cosa ha bisogno, senza sapere chi glielo fornira'.
+ *
+ * Un contratto e' scritto nel linguaggio del dominio, non in quello della
+ * tecnologia che lo implementera':
+ *
+ *   ✗  interface SmtpSender { public function sendViaSmtp(...): void; }
+ *   ✓  interface OrderNotifier { public function notifyShipped(Order $order): void; }
+ *
+ * Il primo ha gia' deciso l'implementazione, e cambiare canale significherebbe
+ * cambiare il dominio.
+ *
+ * Un contratto con un'implementazione sola e nessuna prospettiva di averne una
+ * seconda -- nemmeno nei test -- e' un livello in piu' senza beneficio.
+ */
+interface {{ Class }}
+{
+    // public function …(): …;
+}

@@ -1,0 +1,84 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{ Namespace }};
+
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+
+/**
+ * Validazione per {{ Class }}.
+ *
+ * La Form Request verifica il **formato**: presenza, tipo, lunghezza,
+ * appartenenza a un insieme. Non verifica le regole di dominio -- "il lotto ha
+ * disponibilita' sufficiente" non e' validazione, e metterla qui significa che
+ * un'importazione massiva non la applichera'.
+ */
+final class {{ Class }} extends FormRequest
+{
+    /**
+     * L'autorizzazione vera sta nella Policy, invocata dal controller.
+     *
+     * Qui si ritorna true perche' il metodo e' obbligatorio, non perche' non
+     * ci sia autorizzazione: duplicarla qui significherebbe averla in due
+     * posti che possono divergere.
+     */
+    public function authorize(): bool
+    {
+        return true;
+    }
+
+    /**
+     * @return array<string, array<int, mixed>|string>
+     */
+    public function rules(): array
+    {
+        return [
+            // 'quantity' => ['required', 'numeric', 'gt:0', 'decimal:0,3'],
+            // 'status' => ['required', Rule::enum({{ Entity }}Status::class)],
+            // 'expiry_date' => ['required', 'date', 'after:today'],
+
+            // Le regole di unicita' vivono anche nel database: la validazione
+            // applicativa ha una condizione di corsa tra verifica e
+            // inserimento.
+            // 'number' => ['required', 'string', 'max:50', Rule::unique('{{ table }}')],
+        ];
+    }
+
+    /**
+     * Messaggi in italiano, con chiavi in inglese.
+     *
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            // 'quantity.gt' => 'La quantita\' deve essere maggiore di zero.',
+        ];
+    }
+
+    /**
+     * Normalizzazione dell'input prima della validazione.
+     *
+     * Serve a togliere l'ambiguita' -- spazi, separatori decimali, maiuscole --
+     * non a correggere dati sbagliati: una normalizzazione troppo generosa
+     * nasconde errori che l'utente dovrebbe vedere.
+     */
+    protected function prepareForValidation(): void
+    {
+        // $this->merge(['number' => trim(strtoupper((string) $this->input('number')))]);
+    }
+}
+
+{{--
+FILTRI E ORDINAMENTI IN LISTA BIANCA
+
+Per le richieste di elenco, i parametri variabili si validano contro un elenco
+chiuso: un elenco di valori vietati e' sempre incompleto, quello dei valori
+ammessi e' finito e noto.
+
+  'sort' => ['sometimes', Rule::in(['expiry_date', 'number'])],
+  'dir'  => ['sometimes', Rule::in(['asc', 'desc'])],
+  'per_page' => ['sometimes', 'integer', 'min:1', 'max:100'],
+--}}

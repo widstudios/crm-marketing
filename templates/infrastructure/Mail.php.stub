@@ -1,0 +1,72 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{ Namespace }};
+
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Content;
+use Illuminate\Mail\Mailables\Envelope;
+use Illuminate\Queue\SerializesModels;
+
+/**
+ * {{-- Che messaggio e', e in quale occasione viene inviato. --}}
+ *
+ * Sempre in coda: l'invio dipende da un server SMTP, e un server lento
+ * bloccherebbe la richiesta dell'utente per il tempo del suo timeout.
+ *
+ * Notification o Mailable? Una Notification sceglie il canale in base alle
+ * preferenze del destinatario; un Mailable e' posta e basta. Per i messaggi
+ * che devono essere posta -- una fattura, un documento firmato -- il Mailable
+ * e' la scelta corretta.
+ */
+final class {{ Class }} extends Mailable implements ShouldQueue
+{
+    use Queueable, SerializesModels;
+
+    public string $queue = 'notifications';
+
+    public function __construct(
+        public readonly int ${{ entity }}Id,
+    ) {}
+
+    public function envelope(): Envelope
+    {
+        return new Envelope(
+            subject: __('{{ module }}.mail.{{ entity }}.subject'),
+        );
+    }
+
+    public function content(): Content
+    {
+        return new Content(
+            markdown: 'mail.{{ module }}.{{ entity }}',
+            with: [
+                // I dati per la vista si preparano qui, non nel template.
+            ],
+        );
+    }
+
+    /**
+     * Allegati.
+     *
+     * Gli allegati vengono letti dal disco del TENANT: il contesto e' gia'
+     * aperto perche' il job che invia il messaggio usa TenantAware.
+     *
+     * @return list<\Illuminate\Mail\Mailables\Attachment>
+     */
+    public function attachments(): array
+    {
+        return [];
+    }
+}
+
+{{--
+NEGLI AMBIENTI NON DI PRODUZIONE
+
+La posta non esce mai verso indirizzi reali: si usa un catturatore locale
+(Mailpit) o un driver di log. Un ambiente di prova che invia messaggi ai
+clienti e' un incidente, non un difetto.
+--}}

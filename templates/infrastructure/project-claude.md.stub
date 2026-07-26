@@ -1,0 +1,222 @@
+# CLAUDE.md — {{ Project }}
+
+> Punto di ingresso obbligatorio per qualsiasi agente AI che opera su questo repository.
+> Va letto prima di qualunque altra azione.
+
+---
+
+## Indice
+
+1. [Identità del progetto](#identità-del-progetto)
+2. [Rapporto con la Factory](#rapporto-con-la-factory)
+3. [Stack](#stack)
+4. [Struttura](#struttura)
+5. [Ordine di lettura obbligatorio](#ordine-di-lettura-obbligatorio)
+6. [Regole non negoziabili](#regole-non-negoziabili)
+7. [Regole locali di questo progetto](#regole-locali-di-questo-progetto)
+8. [Comandi standard](#comandi-standard)
+9. [Glossario del dominio](#glossario-del-dominio)
+10. [Errori comuni](#errori-comuni)
+11. [Checklist prima di consegnare](#checklist-prima-di-consegnare)
+12. [Riferimenti](#riferimenti)
+
+---
+
+## Identità del progetto
+
+{{-- Due o tre paragrafi che dicono: che cosa fa questo software, per chi, e quale problema
+     risolve. Scritti con le parole del committente, non con quelle della tecnologia.
+
+     Chi legge questo file deve capire il dominio prima di vedere una riga di codice: senza,
+     produrra' software plausibile e sbagliato. --}}
+
+**Verticale**: {{-- magazzino sanitario, CRM, help desk, … --}}
+**Committente**: {{-- chi lo usa --}}
+**Generato dalla Factory**: versione {{-- x.y.z --}}
+
+---
+
+## Rapporto con la Factory
+
+Questo progetto è **generato** dalla [WidStudios AI Factory](https://github.com/widstudios/ai-factory).
+Ne eredita:
+
+- le regole in `rules/`, che valgono qui **integralmente**;
+- l'architettura di riferimento;
+- la Foundation, come dipendenza Composer (`widstudios/foundation`);
+- le configurazioni di tooling e la pipeline.
+
+Le regole locali di questo progetto possono solo **restringere**, mai allentare. Una deroga a una
+regola della Factory richiede: la regola citata per numero, il motivo tecnico, l'approvazione
+dell'Area Owner e una **data di scadenza**.
+
+Ciò che qui si scopre essere utile per tutti i progetti **non resta qui**: si promuove nella
+Factory. Copiare codice tra progetti genera divergenza, e la divergenza si scopre quando è troppo
+tardi per correggerla in un punto solo.
+
+---
+
+## Stack
+
+| Componente | Versione |
+|---|---|
+| PHP | 8.4+ |
+| Laravel | ultima LTS |
+| Filament | ultima stabile |
+| Livewire, Alpine.js, Tailwind CSS, Vite | ultime stabili |
+| MySQL 8.4 (produzione) · SQLite (test) | |
+| Redis | cache, code, sessioni |
+| Pest, PHPStan livello 8, Pint | qualità |
+
+Nessuna dipendenza nuova senza giustificazione scritta e valutazione di manutenzione.
+
+---
+
+## Struttura
+
+```
+app/
+├── Domain/{{ Module }}/           entità, enum, value object, eventi, contratti
+├── Application/{{ Module }}/      Action, DTO, Query object
+├── Infrastructure/{{ Module }}/   repository, integrazioni, implementazioni
+├── Http/                          controller, request, resource, middleware
+├── Filament/                      pannelli tenant e piattaforma
+├── Livewire/                      componenti della superficie pubblica
+├── Jobs/  Policies/  Providers/
+database/
+├── migrations/landlord/           piattaforma
+├── migrations/tenant/             dominio
+├── seeders/System/                obbligatori, idempotenti
+└── seeders/Demo/                  prova, mai in produzione
+tests/
+├── Unit/  Feature/  Tenant/  Architecture/
+```
+
+Le dipendenze puntano **verso l'interno**: il dominio non conosce il framework.
+
+---
+
+## Ordine di lettura obbligatorio
+
+1. `CLAUDE.md` (questo file)
+2. Il glossario del dominio, più in basso
+3. `docs/domain/` — entità, stati, regole di business
+4. `docs/use-cases/` — i casi d'uso, con attore, precondizioni, flusso, esiti
+5. Le regole della Factory pertinenti all'artefatto da produrre
+6. La checklist di fase
+
+Prima di scrivere codice PHP: `rules/php.md`, `rules/laravel.md`, `rules/naming.md`.
+
+---
+
+## Regole non negoziabili
+
+1. **Multitenancy.** Ogni entità di dominio vive nel database del tenant; i dati di piattaforma nel
+   landlord. Mai mescolare.
+2. **Nessuna query cross-tenant**, in nessuna circostanza, nemmeno per diagnostica.
+3. **Deny by default.** Ogni Policy nega salvo permesso esplicito.
+4. **Ogni mutazione passa da un'Action**, che riceve un DTO e viene registrata quando riguarda dati
+   sensibili.
+5. **Nessuna logica nei controller, nei model, nei Filament Resource, nei componenti Livewire.**
+6. **Tipizzazione stretta.** `declare(strict_types=1);` ovunque, tipi su ogni firma.
+7. **Test obbligatori.** Nessun artefatto senza test; tre test per operazione; un test di
+   isolamento per entità.
+8. **Nessun segreto nel repository**, nemmeno di esempio realistico.
+9. **Nessuna dipendenza nuova** senza giustificazione scritta.
+10. **Ogni file Markdown** ha indice, descrizione, esempi, best practice, checklist, errori comuni e
+    riferimenti incrociati.
+
+---
+
+## Regole locali di questo progetto
+
+{{-- Solo ciò che è specifico di QUESTO software: vincoli normativi del settore, invarianti di
+     dominio che nessun percorso può violare, integrazioni obbligatorie, requisiti di
+     conservazione dei dati.
+
+     Ogni regola locale è verificabile e ha una conseguenza dichiarata. Una regola che nessuno sa
+     come verificare non è una regola: è un auspicio. --}}
+
+**L1.** {{-- … --}}
+*Motivo:* {{-- … --}} *Verifica:* {{-- … --}}
+
+---
+
+## Comandi standard
+
+```bash
+composer install
+php artisan key:generate
+php artisan migrate --database=landlord
+php artisan tenants:migrate
+
+composer test          # Pest
+composer lint          # Pint --test
+composer analyse       # PHPStan livello 8
+composer qa            # lint + analyse + test
+
+# Qualunque comando che tocchi dati di dominio:
+php artisan tenants:artisan "<comando>"
+```
+
+Un comando di dominio eseguito **senza** `tenants:artisan` gira sul landlord: il caso in cui
+fallisce è quello fortunato.
+
+---
+
+## Glossario del dominio
+
+{{-- I termini del committente, con la definizione che il committente userebbe, e il nome
+     corrispondente nel codice.
+
+     È la sezione che evita il difetto più costoso e meno visibile: software che funziona e usa le
+     parole per indicare cose leggermente diverse da quelle che il cliente intende. --}}
+
+| Termine (dominio) | Significato | Identificatore |
+|---|---|---|
+| {{-- Lotto --}} | {{-- quantità ricevuta in una sola consegna, con scadenza propria --}} | `Batch` |
+
+Nel codice gli identificatori sono in **inglese**; documentazione, commenti e testi rivolti
+all'utente in **italiano**.
+
+---
+
+## Errori comuni
+
+| Errore | Perché è grave | Cosa fare invece |
+|---|---|---|
+| Logica nel Resource o nel controller | L'API e l'importazione non la applicano | Action e dominio |
+| Action che riceve `Request` | Inutilizzabile da CLI, coda, importazioni | DTO |
+| Chiave di cache scritta a mano | Un cliente legge i dati di un altro | `TenantCacheKey::for()` |
+| Job senza `TenantAware` | Scrittura nel database sbagliato | Trait obbligatorio |
+| Comando lanciato senza `tenants:artisan` | Gira sul landlord | Sempre con il contesto |
+| Colonna `tenant_id` | Fraintendimento del modello | Il tenant è il database |
+| Permessi non assegnati al ruolo admin | Funzionalità invisibile dopo il deploy | `syncPermissions` |
+| Codice copiato da un altro progetto | Divergenza tra i progetti | Promuovere nella Foundation |
+| `env()` fuori da `config/` | Rompe la cache di configurazione | `config('...')` |
+| `--force` su comandi distruttivi | Perdita di dati | Conferma esplicita |
+
+---
+
+## Checklist prima di consegnare
+
+- [ ] Ho letto il glossario e uso i termini del dominio senza introdurre sinonimi.
+- [ ] L'artefatto rispetta le regole della Factory e quelle locali.
+- [ ] Ogni mutazione passa da un'Action che riceve un DTO.
+- [ ] Ogni punto di ingresso autorizza esplicitamente.
+- [ ] Ogni entità nuova ha il test di isolamento tra tenant.
+- [ ] Tre test per ogni operazione: corretto, violazione di dominio, autorizzazione negata.
+- [ ] `composer qa` è verde sul commit che consegno.
+- [ ] La documentazione è aggiornata nello stesso commit.
+- [ ] Le assunzioni sono dichiarate; le domande aperte sono elencate.
+- [ ] Il commit segue le regole di commit della Factory.
+
+---
+
+## Riferimenti
+
+- [Documentazione del dominio](docs/domain/README.md)
+- [Casi d'uso](docs/use-cases/README.md)
+- [Decisioni architetturali](docs/decisions/README.md)
+- [Foundation](https://github.com/widstudios/foundation)
+- [WidStudios AI Factory](https://github.com/widstudios/ai-factory)

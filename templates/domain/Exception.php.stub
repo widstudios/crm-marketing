@@ -1,0 +1,41 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{ Namespace }};
+
+use WidStudios\Foundation\Exceptions\DomainException;
+
+/**
+ * {{-- Quale regola di dominio non e' soddisfatta. --}}
+ *
+ * Un'eccezione di dominio dice che una regola di business e' stata violata:
+ * il lotto e' scaduto, la quantita' supera la disponibilita', lo stato non
+ * ammette quella transizione. Non e' un errore tecnico, ed e' l'unica famiglia
+ * di eccezioni che ha senso mostrare a un utente.
+ *
+ * Si costruisce con costruttori nominati, mai con new {{ Class }}('messaggio'):
+ * il costruttore nominato mette il messaggio in un punto solo, rende la
+ * condizione ricercabile e impedisce che lo stesso errore venga formulato in
+ * tre modi diversi.
+ */
+final class {{ Class }} extends DomainException
+{
+    // public static function for({{ Entity }} ${{ entity }}): self
+    // {
+    //     return new self(sprintf(
+    //         "Il lotto %s e' scaduto il %s e non puo' essere movimentato.",
+    //         ${{ entity }}->number,
+    //         ${{ entity }}->expiry_date->format('d/m/Y'),
+    //     ));
+    // }
+
+    // public static function insufficientQuantity(string $available, string $requested): self
+    // {
+    //     return new self(sprintf(
+    //         'Disponibilita\' insufficiente: richiesti %s, disponibili %s.',
+    //         $requested,
+    //         $available,
+    //     ));
+    // }
+}

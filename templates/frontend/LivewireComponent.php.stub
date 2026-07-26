@@ -1,0 +1,97 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{ Namespace }};
+
+use Illuminate\View\View;
+use Livewire\Attributes\Computed;
+use Livewire\Attributes\Locked;
+use Livewire\Component;
+use Livewire\WithPagination;
+
+/**
+ * {{-- Che cosa fa questo componente, dal punto di vista dell'utente. --}}
+ *
+ * La cosa da sapere prima di scrivere qualunque altra riga: OGNI PROPRIETA'
+ * PUBBLICA E OGNI METODO PUBBLICO SONO CONTROLLABILI DAL CLIENT.
+ *
+ * Il client puo' cambiare il valore di una proprieta' pubblica e invocare un
+ * metodo pubblico con i parametri che preferisce. Un componente scritto come
+ * se lo stato fosse suo e' un componente in cui l'utente decide cosa
+ * modificare.
+ */
+final class {{ Class }} extends Component
+{
+    use WithPagination;
+
+    /**
+     * #[Locked] impedisce al client di modificare la proprieta'.
+     *
+     * Su ogni identificatore e' obbligatorio: senza, l'utente cambia l'id e il
+     * componente lavora su una risorsa che non gli appartiene.
+     */
+    #[Locked]
+    public int ${{ entity }}Id;
+
+    /**
+     * Proprieta' modificabili dall'utente: qui e' corretto che lo siano.
+     */
+    public string $search = '';
+
+    public function mount(int ${{ entity }}Id): void
+    {
+        // L'autorizzazione si verifica al montaggio, non solo nelle azioni:
+        // altrimenti il componente carica e mostra dati che l'utente non
+        // dovrebbe vedere, e poi nega la modifica.
+        $this->authorize('view', {{ Entity }}::findOrFail(${{ entity }}Id));
+
+        $this->{{ entity }}Id = ${{ entity }}Id;
+    }
+
+    /**
+     * Le proprieta' calcolate non finiscono nello stato serializzato.
+     *
+     * E' cio' che evita di mandare avanti e indietro una collezione a ogni
+     * interazione, e cio' che impedisce al client di modificarla.
+     */
+    #[Computed]
+    public function {{ entities }}(): mixed
+    {
+        return (new {{ Entity }}Query(search: $this->search))->paginate(25);
+    }
+
+    /**
+     * Ogni metodo pubblico che muta autorizza esplicitamente.
+     *
+     * Non e' ridondante rispetto a mount(): il client puo' invocare questo
+     * metodo direttamente, con un identificatore diverso, senza passare da
+     * un'interfaccia che lo permetta.
+     */
+    public function archive(): void
+    {
+        ${{ entity }} = {{ Entity }}::findOrFail($this->{{ entity }}Id);
+
+        $this->authorize('update', ${{ entity }});
+
+        // La logica sta nell'Action.
+        app(Archive{{ Entity }}Action::class)->execute(new Archive{{ Entity }}Data(${{ entity }}->getKey()));
+
+        $this->dispatch('{{ entity }}-archived');
+    }
+
+    public function render(): View
+    {
+        return view('livewire.{{ module }}.{{ entity }}');
+    }
+}
+
+{{--
+PRESTAZIONI
+
+  - #[Computed] per i dati derivati: non entrano nello stato serializzato;
+  - wire:model.live solo dove serve davvero la reattivita' a ogni tasto:
+    altrimenti wire:model.blur o .live.debounce.300ms;
+  - nessuna collezione grande in una proprieta' pubblica: viaggia avanti e
+    indietro a ogni interazione.
+--}}

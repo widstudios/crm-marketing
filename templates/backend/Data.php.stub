@@ -1,0 +1,60 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{ Namespace }};
+
+use WidStudios\Foundation\Data\BaseData;
+
+/**
+ * {{-- Quali dati trasporta, e verso quale operazione. --}}
+ *
+ * readonly non e' una preferenza stilistica: un oggetto che cambia mentre
+ * attraversa tre livelli non trasporta piu' nulla di affidabile, e trovare chi
+ * lo ha cambiato costa una sessione di debug.
+ *
+ * I tipi sono quelli del dominio -- enum e value object -- non stringhe: un
+ * DTO che trasporta stringhe sposta la validazione a valle, dove verra'
+ * dimenticata.
+ */
+final readonly class {{ Class }} extends BaseData
+{
+    public function __construct(
+        // public int ${{ entity }}Id,
+        // public {{ Entity }}Status $status,
+        // public Quantity $quantity,
+        // public ?string $reason = null,
+    ) {}
+
+    /**
+     * Costruttore per la richiesta HTTP.
+     *
+     * I costruttori nominati mettono in un punto solo la traduzione da una
+     * forma esterna a quella interna, e permettono di aggiungere una sorgente
+     * -- un'importazione, un webhook, un comando -- senza toccare le altre.
+     */
+    public static function fromRequest({{ Class }}Request $request): self
+    {
+        return new self(
+            // {{ entity }}Id: $request->integer('{{ entity }}_id'),
+            // status: {{ Entity }}Status::from($request->string('status')->toString()),
+            // quantity: new Quantity($request->string('quantity')->toString()),
+        );
+    }
+
+    /**
+     * Costruttore per l'importazione massiva.
+     *
+     * {{-- Le chiavi sono quelle del file del committente, quindi in italiano:
+     *      e' l'unico punto del codice in cui e' corretto che lo siano. --}}
+     *
+     * @param  array<string, string>  $row
+     */
+    public static function fromImportRow(array $row): self
+    {
+        return new self(
+            // {{ entity }}Id: (int) $row['id_lotto'],
+            // quantity: new Quantity($row['quantita']),
+        );
+    }
+}

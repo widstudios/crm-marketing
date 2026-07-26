@@ -1,0 +1,108 @@
+# syntax=docker/dockerfile:1.7
+
+# ---------------------------------------------------------------------------
+# Immagine dell'applicazione — {{ Project }}
+#
+# La stessa immagine serve il web e i worker. Non e' un'ottimizzazione: due
+# immagini divergono, e la divergenza produce difetti che si manifestano solo
+# in coda, dove sono piu' difficili da riprodurre (rules/queue.md R14).
+#
+# Costruzione a piu' stadi: gli strumenti di build non entrano nell'immagine
+# finale. Composer, Node e le dipendenze di sviluppo pesano centinaia di
+# megabyte e sono superficie di attacco inutile in produzione.
+# ---------------------------------------------------------------------------
+
+# --- Stadio 1: dipendenze PHP ---------------------------------------------
+FROM composer:2 AS vendor
+
+WORKDIR /app
+
+# Prima solo i file delle dipendenze: cosi' il livello resta in cache finche'
+# non cambiano davvero, e una modifica al codice non ricostruisce tutto.
+COPY composer.json composer.lock ./
+
+RUN composer install \
+    --no-dev \
+    --no-scripts \
+    --no-autoloader \
+    --prefer-dist \
+    --no-interaction
+
+COPY . .
+
+RUN composer dump-autoload --optimize --classmap-authoritative
+
+# --- Stadio 2: asset -------------------------------------------------------
+FROM node:22-alpine AS assets
+
+WORKDIR /app
+
+COPY package.json package-lock.json ./
+RUN npm ci
+
+COPY . .
+RUN npm run build
+
+# --- Stadio 3: runtime -----------------------------------------------------
+FROM php:8.4-fpm-alpine AS runtime
+
+RUN apk add --no-cache \
+        icu-libs \
+        libzip \
+        postgresql-libs \
+    && apk add --no-cache --virtual .build-deps \
+        $PHPIZE_DEPS \
+        icu-dev \
+        libzip-dev \
+    && docker-php-ext-install -j"$(nproc)" \
+        bcmath \
+        intl \
+        opcache \
+        pcntl \
+        pdo_mysql \
+        zip \
+    && pecl install redis \
+    && docker-php-ext-enable redis \
+    && apk del .build-deps
+
+COPY deployment/docker/php/php.ini /usr/local/etc/php/conf.d/99-app.ini
+COPY deployment/docker/php/opcache.ini /usr/local/etc/php/conf.d/99-opcache.ini
+
+WORKDIR /var/www/html
+
+COPY --from=vendor --chown=www-data:www-data /app /var/www/html
+COPY --from=assets --chown=www-data:www-data /app/public/build /var/www/html/public/build
+
+# Il processo non gira come root: se un'esecuzione arbitraria di codice
+# riesce, la differenza tra www-data e root e' la differenza tra un incidente
+# e una compromissione della macchina.
+USER www-data
+
+# Il controllo di salute verifica che l'applicazione risponda, non che il
+# processo esista: un PHP-FPM vivo con il database irraggiungibile e' "su" per
+# il sistema di orchestrazione e inutile per gli utenti.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+    CMD php artisan health:check || exit 1
+
+EXPOSE 9000
+
+CMD ["php-fpm"]
+
+{{--
+COSTRUZIONE
+
+  docker build -t {{ project }}:$(git rev-parse --short HEAD) .
+
+L'immagine e' etichettata con il commit, mai con 'latest': durante un incidente
+bisogna poter dire con certezza quale codice sta girando.
+
+WORKER
+
+Stessa immagine, comando diverso:
+
+  command: php artisan queue:work --queue=high,default --tries=3 --max-time=3600
+
+--max-time fa terminare il worker dopo un'ora, e il supervisore lo riavvia: e'
+il modo piu' semplice di non accumulare memoria in un processo che vive per
+sempre.
+--}}

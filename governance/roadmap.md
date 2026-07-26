@@ -41,7 +41,7 @@ Legenda stato: ✅ completo · 🟡 in corso · ⬜ da fare
 | 5 | `agents/` | ✅ | protocollo + 16 agenti con prompt completi | [`agents/README.md`](../agents/README.md) |
 | 6 | `prompts/` | ✅ | system prompt, `loop crea`, prompt di fase, snippet | [`prompts/README.md`](../prompts/README.md) |
 | 7 | `foundation/` | ✅ | pacchetto PHP riutilizzabile + documentazione | [`foundation/README.md`](../foundation/README.md) |
-| 8 | `templates/` | ⬜ | stub per ogni artefatto Laravel/Filament | [`templates/README.md`](../templates/README.md) |
+| 8 | `templates/` | ✅ | stub per ogni artefatto Laravel/Filament | [`templates/README.md`](../templates/README.md) |
 | 9 | `modules/` | ⬜ | blueprint di modulo + catalogo | [`modules/README.md`](../modules/README.md) |
 | 10 | `workflows/` | ✅ | master workflow + workflow di fase | [`workflows/README.md`](../workflows/README.md) |
 | 11 | `checklists/` | ✅ | quality gate operativi | [`checklists/README.md`](../checklists/README.md) |

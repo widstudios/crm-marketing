@@ -1,0 +1,85 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{ Namespace }};
+
+use Illuminate\Console\Command;
+use WidStudios\Foundation\Tenancy\TenantContext;
+
+/**
+ * {{-- Che cosa fa il comando, e quando lo si esegue. --}}
+ *
+ * ATTENZIONE AL CONTESTO
+ *
+ * Un comando che tocca dati di dominio NON si esegue direttamente:
+ *
+ *     ✗  php artisan {{ module }}:…
+ *     ✓  php artisan tenants:artisan "{{ module }}:…"
+ *
+ * Eseguito direttamente gira nel contesto di piattaforma. Il caso in cui
+ * fallisce e' quello fortunato; il caso peggiore e' un comando che trova
+ * tabelle omonime nel landlord e le modifica.
+ *
+ * Il controllo qui sotto rende il difetto impossibile invece che improbabile.
+ */
+final class {{ Class }} extends Command
+{
+    protected $signature = '{{ module }}:{{ entity }}
+                            {--chunk=500 : Numero di record elaborati per lotto}
+                            {--dry-run : Mostra cosa farebbe senza scrivere nulla}';
+
+    protected $description = '{{-- descrizione in italiano, una riga --}}';
+
+    public function handle(TenantContext $context): int
+    {
+        // Il comando si rifiuta di girare fuori dal contesto di un tenant.
+        if (! $context->has()) {
+            $this->error('Questo comando richiede un contesto tenant.');
+            $this->line('Eseguirlo con: php artisan tenants:artisan "'.$this->getName().'"');
+
+            return self::FAILURE;
+        }
+
+        $dryRun = (bool) $this->option('dry-run');
+        $chunk = max(1, (int) $this->option('chunk'));
+
+        // Elaborazione a blocchi: memoria costante, ripresa possibile. Un
+        // comando che carica tutto in memoria funziona sui tenant piccoli e
+        // fallisce su quello grande, cioe' proprio dove serve.
+        //
+        // {{ Entity }}::query()->chunkById($chunk, function ($records) use ($dryRun): void {
+        //     foreach ($records as $record) {
+        //         if ($dryRun) {
+        //             $this->line("[dry-run] …");
+        //             continue;
+        //         }
+        //         …
+        //     }
+        // });
+
+        $this->info('Completato'.($dryRun ? ' (dry-run: nessuna scrittura)' : '').'.');
+
+        return self::SUCCESS;
+    }
+}
+
+{{--
+COMANDI DISTRUTTIVI
+
+Chiedono conferma esplicita e non accettano --force per aggirarla, salvo negli
+ambienti non di produzione. Un --force in un comando distruttivo e' la
+differenza tra un errore e una perdita di dati.
+
+    if ($this->getLaravel()->isProduction() && ! $this->confirm('…')) {
+        return self::FAILURE;
+    }
+
+PIANIFICAZIONE
+
+  Schedule::command('tenants:artisan "{{ module }}:{{ entity }}"')
+      ->dailyAt('02:00')
+      ->withoutOverlapping()      l'esecuzione su N tenant puo' superare l'intervallo
+      ->onOneServer()             con piu' server, altrimenti gira N volte
+      ->runInBackground();
+--}}

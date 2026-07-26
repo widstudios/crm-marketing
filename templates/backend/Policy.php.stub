@@ -1,0 +1,71 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{ Namespace }};
+
+/**
+ * Autorizzazione per {{ Entity }}.
+ *
+ * Deny by default: ogni metodo nega salvo permesso esplicito. Non esiste un
+ * `return true` incondizionato, nemmeno "per ora", nemmeno per il ruolo
+ * amministratore -- l'amministratore ha tutti i permessi, e quindi la verifica
+ * del permesso lo autorizza gia'.
+ *
+ * Non si controllano mai i **nomi dei ruoli**: i ruoli cambiano, i permessi
+ * no. Un `if ($user->hasRole('manager'))` va riscritto il giorno in cui il
+ * committente introduce un secondo tipo di responsabile.
+ *
+ * Ogni metodo ha un test di **rifiuto**, non solo di successo: e' il rifiuto
+ * che non e' mai stato provato, ed e' il rifiuto che protegge.
+ */
+final class {{ Class }}
+{
+    public function viewAny(User $user): bool
+    {
+        return $user->can('{{ permission }}.view');
+    }
+
+    public function view(User $user, {{ Entity }} ${{ entity }}): bool
+    {
+        return $user->can('{{ permission }}.view');
+    }
+
+    public function create(User $user): bool
+    {
+        return $user->can('{{ permission }}.create');
+    }
+
+    public function update(User $user, {{ Entity }} ${{ entity }}): bool
+    {
+        {{-- Quando lo stato dell'entita' limita l'operazione, la condizione va
+             qui insieme al permesso: un'entita' archiviata non e' modificabile
+             nemmeno da chi avrebbe il permesso. --}}
+
+        return $user->can('{{ permission }}.update');
+    }
+
+    public function delete(User $user, {{ Entity }} ${{ entity }}): bool
+    {
+        return $user->can('{{ permission }}.delete');
+    }
+
+    // Le azioni non CRUD hanno il proprio metodo e il proprio permesso: sono
+    // quelle che l'autorizzazione automatica non copre, ed e' dove i difetti
+    // si nascondono.
+    //
+    // public function approve(User $user, {{ Entity }} ${{ entity }}): bool
+    // {
+    //     return $user->can('{{ permission }}.approve')
+    //         && ${{ entity }}->status->canTransitionTo({{ Entity }}Status::Approved);
+    // }
+}
+
+{{--
+NON SERVE VERIFICARE L'APPARTENENZA AL TENANT
+
+Con un database per tenant, un'entita' di un altro cliente non e' raggiungibile:
+non esiste in questa connessione. Un controllo del tipo
+`${{ entity }}->tenant_id === $user->tenant_id` e' il segnale che chi lo ha
+scritto sta ragionando sul modello sbagliato.
+--}}

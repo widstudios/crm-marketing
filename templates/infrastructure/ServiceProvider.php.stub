@@ -1,0 +1,66 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{ Namespace }};
+
+use Illuminate\Support\ServiceProvider;
+
+/**
+ * Registrazione di {{ Module }} nel container.
+ *
+ * La distinzione tra register() e boot() non e' stilistica: register() gira
+ * quando NESSUN altro provider e' garantito disponibile. Usare un servizio in
+ * register() produce un errore che dipende dall'ordine di caricamento, quindi
+ * intermittente e difficile da attribuire.
+ *
+ *   register()   dichiara COME costruire le cose. Solo bind e singleton.
+ *   boot()       usa le cose. Rotte, viste, eventi, comandi, policy.
+ */
+final class {{ Class }} extends ServiceProvider
+{
+    public function register(): void
+    {
+        // Ogni contratto ha un binding esplicito: e' il punto in cui il
+        // dominio riceve l'implementazione senza conoscerla.
+        //
+        // $this->app->bind({{ Module }}Contract::class, {{ Module }}Service::class);
+
+        // singleton per cio' che deve essere unico nel processo; bind per il
+        // resto. Un singleton con stato che dovrebbe essere per richiesta e'
+        // una fuga di dati tra richieste in attesa di accadere.
+        //
+        // $this->app->singleton(…);
+
+        $this->mergeConfigFrom(__DIR__.'/../config/{{ module }}.php', '{{ module }}');
+    }
+
+    public function boot(): void
+    {
+        // $this->loadMigrationsFrom(__DIR__.'/../database/migrations/tenant');
+        // $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
+        // $this->loadViewsFrom(__DIR__.'/../resources/views', '{{ module }}');
+        // $this->loadTranslationsFrom(__DIR__.'/../lang', '{{ module }}');
+
+        // Gate::policy({{ Entity }}::class, {{ Entity }}Policy::class);
+
+        if ($this->app->runningInConsole()) {
+            // $this->commands([…]);
+
+            $this->publishes([
+                __DIR__.'/../config/{{ module }}.php' => config_path('{{ module }}.php'),
+            ], '{{ module }}-config');
+        }
+    }
+}
+
+{{--
+PER UN MODULO
+
+Un provider di modulo estende ModuleServiceProvider della Foundation e mette
+TUTTE le registrazioni dentro bootModule(), che viene invocato solo a modulo
+attivo. Registrazioni fuori da li' rendono la parola "disattivato" priva di
+conseguenze, e l'indipendenza dei moduli non verificabile.
+
+Vedi foundation/docs/05-moduli.md.
+--}}

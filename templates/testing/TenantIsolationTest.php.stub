@@ -1,0 +1,71 @@
+<?php
+
+declare(strict_types=1);
+
+use WidStudios\Foundation\Testing\InteractsWithTenants;
+use WidStudios\Foundation\Tenancy\TenantCacheKey;
+
+/*
+ * Test di isolamento per {{ Entity }}.
+ *
+ * Destinazione: tests/Tenant/
+ *
+ * OBBLIGATORIO PER OGNI ENTITA' DI DOMINIO (rules/testing.md R19).
+ *
+ * E' il test che protegge dal difetto piu' costoso del sistema, ed e' anche
+ * quello che si tende a rimandare: con un tenant solo tutto funziona, e
+ * l'isolamento sembra una proprieta' della struttura invece che qualcosa da
+ * verificare.
+ *
+ * Il test usa DUE TENANT REALI. Con uno solo non verifica nulla.
+ */
+
+uses(InteractsWithTenants::class);
+
+it('non espone i {{ entities }} di un altro tenant', function (): void {
+    $this->assertTenantsAreIsolated(
+        first: 'acme',
+        second: 'globex',
+        seed: fn () => {{ Entity }}::factory()->count(5)->create(),
+        count: fn (): int => {{ Entity }}::query()->count(),
+    );
+});
+
+it('non espone la cache di un altro tenant', function (): void {
+    // Il database e' protetto dalla struttura; la cache no. Redis e' uno solo,
+    // e due tenant che usano la stessa chiave leggono lo stesso valore.
+    $this->forTenant('acme', function (): void {
+        Cache::put(TenantCacheKey::for('{{ module }}.stats'), 42, 60);
+    });
+
+    $this->forTenant('globex', function (): void {
+        expect(Cache::get(TenantCacheKey::for('{{ module }}.stats')))->toBeNull();
+    });
+});
+
+it('esegue i job nel contesto del tenant che li ha accodati', function (): void {
+    // Il difetto che questo test intercetta e' intermittente: dipende da quale
+    // tenant il worker aveva per ultimo. Senza il test si manifesta in
+    // produzione, sotto carico, come dati comparsi nel cliente sbagliato.
+    //
+    // $this->forTenant('acme', fn () => Recalculate{{ Entity }}Job::dispatch(1));
+    //
+    // $this->forTenant('globex', function (): void {
+    //     expect({{ Entity }}::query()->count())->toBe(0);
+    // });
+});
+
+it('risponde 404 accedendo via API a un {{ entity }} di un altro tenant', function (): void {
+    // 404 e non 403: un 403 confermerebbe l'esistenza della risorsa, e per un
+    // sistema multi-cliente l'elenco dei clienti e' un'informazione riservata.
+});
+
+it('scrive i file sul disco privato del tenant corrente', function (): void {
+    // $this->forTenant('acme', function (): void {
+    //     Storage::disk('tenant')->put('prova.txt', 'x');
+    // });
+    //
+    // $this->forTenant('globex', function (): void {
+    //     expect(Storage::disk('tenant')->exists('prova.txt'))->toBeFalse();
+    // });
+});

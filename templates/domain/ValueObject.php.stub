@@ -1,0 +1,75 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{ Namespace }};
+
+use Stringable;
+
+/**
+ * {{-- Che cosa rappresenta questo valore e quali vincoli ha. --}}
+ *
+ * Un value object esiste per un motivo solo: rendere impossibile costruire un
+ * valore non valido. La validazione sta nel costruttore, quindi un'istanza che
+ * esiste e' per definizione valida, e nessun punto del codice deve
+ * riverificarla.
+ *
+ * E' identificato dal proprio valore, non da un'identita': due istanze con lo
+ * stesso valore sono la stessa cosa. Per questo e' immutabile: modificarne una
+ * significherebbe cambiare il valore stesso.
+ */
+final readonly class {{ Class }} implements Stringable
+{
+    public function __construct(
+        public string $value,
+    ) {
+        $this->assertValid($value);
+    }
+
+    /**
+     * @throws Invalid{{ Class }}
+     */
+    private function assertValid(string $value): void
+    {
+        // if ($value === '') {
+        //     throw Invalid{{ Class }}::empty();
+        // }
+        //
+        // if (preg_match('/^…$/', $value) !== 1) {
+        //     throw Invalid{{ Class }}::format($value);
+        // }
+    }
+
+    /**
+     * Costruttore tollerante, per l'input dell'utente.
+     *
+     * Normalizza cio' che e' ambiguo -- spazi, maiuscole, separatori -- e poi
+     * applica le stesse verifiche del costruttore. Averlo separato permette di
+     * essere permissivi in ingresso senza essere permissivi nel dominio.
+     */
+    public static function fromUserInput(string $value): self
+    {
+        return new self(trim(strtoupper($value)));
+    }
+
+    public function equals(self $other): bool
+    {
+        return $this->value === $other->value;
+    }
+
+    /**
+     * Forma leggibile per l'interfaccia.
+     *
+     * La formattazione per la presentazione appartiene qui e non alla vista:
+     * cosi' e' identica ovunque, ed e' verificabile con un test unitario.
+     */
+    public function toDisplay(): string
+    {
+        return $this->value;
+    }
+
+    public function __toString(): string
+    {
+        return $this->value;
+    }
+}

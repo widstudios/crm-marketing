@@ -1,0 +1,62 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{ Namespace }};
+
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
+
+/**
+ * Forma della risposta per {{ Entity }}.
+ *
+ * I campi sono ESPLICITI. Un `return parent::toArray($request)` espone tutte le
+ * colonne del model, comprese quelle che verranno aggiunte domani: una colonna
+ * interna finisce nell'API senza che nessuno lo abbia deciso, e da quel momento
+ * fa parte del contratto.
+ *
+ * @mixin {{ Entity }}
+ */
+final class {{ Class }} extends JsonResource
+{
+    /**
+     * @return array<string, mixed>
+     */
+    public function toArray(Request $request): array
+    {
+        return [
+            'id' => $this->id,
+
+            // I decimali viaggiano come stringhe: un float in JSON perde
+            // precisione in modi che dipendono dal linguaggio di chi legge.
+            // 'quantity' => (string) $this->quantity,
+
+            // Gli enum espongono il valore, non il nome del case.
+            // 'status' => $this->status->value,
+
+            // Le date sono ISO 8601 in UTC: la conversione al fuso dell'utente
+            // appartiene a chi presenta, non a chi trasmette.
+            // 'expiry_date' => $this->expiry_date->toDateString(),
+            'created_at' => $this->created_at?->toIso8601String(),
+
+            // Le relazioni si includono su richiesta, non sempre:
+            // whenLoaded() evita che una relazione non caricata produca una
+            // query per ogni elemento dell'elenco.
+            // 'article' => ArticleResource::make($this->whenLoaded('article')),
+        ];
+    }
+}
+
+{{--
+CIO' CHE NON VA ESPOSTO
+
+  - chiavi tecniche interne, percorsi di file, nomi di disco
+  - colonne di stato interno che non fanno parte del dominio del chiamante
+  - conteggi calcolati con una query per elemento (usare withCount())
+  - qualunque campo che non si e' disposti a mantenere per anni
+
+AGGIUNGERE, MAI CAMBIARE
+
+Un campo nuovo non rompe nessuno. Un campo rinominato, rimosso o che cambia tipo
+rompe ogni integratore, e non c'e' modo di saperlo prima che accada.
+--}}

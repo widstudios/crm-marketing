@@ -1,0 +1,81 @@
+<?php
+
+declare(strict_types=1);
+
+/*
+ * Test di feature per {{ Entity }}.
+ *
+ * Destinazione: tests/Feature/
+ *
+ * Verifica un comportamento COMPLETO attraverso i livelli, non un singolo
+ * metodo: dalla richiesta all'effetto sul database, passando per
+ * autorizzazione, validazione e Action.
+ *
+ * OGNI OPERAZIONE HA ALMENO TRE TEST (rules/testing.md R4):
+ *
+ *   1. percorso corretto
+ *   2. violazione di una regola di dominio
+ *   3. autorizzazione negata      ← e' quello che si dimentica,
+ *                                   ed e' quello che protegge dai difetti piu' gravi
+ */
+
+use function Pest\Laravel\{actingAs, postJson};
+
+it('{{-- registra il movimento e aggiorna la giacenza --}}', function (): void {
+    // ${{ entity }} = {{ Entity }}::factory()->create([…]);
+
+    // actingAs(userWithPermission('{{ permission }}.create'))
+    //     ->postJson("/api/v1/{{ table }}", […])
+    //     ->assertCreated();
+
+    // La verifica e' sull'EFFETTO, non sul codice di stato: un 201 con il
+    // database invariato passerebbe comunque.
+    // expect(${{ entity }}->fresh()->quantity)->toEqual(…);
+});
+
+it('rifiuta {{-- la violazione della regola di dominio --}}', function (): void {
+    // ${{ entity }} = {{ Entity }}::factory()->expired()->create();
+
+    // actingAs(userWithPermission('{{ permission }}.create'))
+    //     ->postJson("/api/v1/{{ table }}", […])
+    //     ->assertStatus(422);
+});
+
+it('nega a chi non ha il permesso', function (): void {
+    // actingAs(userWithoutPermissions())
+    //     ->postJson("/api/v1/{{ table }}", […])
+    //     ->assertForbidden();
+});
+
+it('risponde 404 per una risorsa di un altro tenant', function (): void {
+    // 404 e non 403: un 403 confermerebbe che la risorsa esiste
+    // (rules/security.md R20).
+});
+
+it('emette l\'evento e accoda il job', function (): void {
+    // Gli effetti collaterali fanno parte del comportamento: un'operazione che
+    // scrive correttamente ma non emette l'evento e' rotta, e senza questo
+    // test nessuno se ne accorge.
+    //
+    // Event::fake();
+    // Queue::fake();
+    //
+    // …
+    //
+    // Event::assertDispatched({{ Entity }}Registered::class);
+    // Queue::assertPushed(Recalculate{{ Entity }}Job::class);
+});
+
+{{--
+DIPENDENZE ESTERNE SEMPRE SIMULATE
+
+  Http::fake() · Mail::fake() · Queue::fake() · Storage::fake() · Notification::fake()
+
+Un test che chiama un servizio reale fallisce quando la rete e' lenta, quando il
+servizio e' in manutenzione, e nella pipeline di chi lavora da casa.
+
+NIENTE sleep()
+
+Il tempo si manipola con travel(). sleep() rende la suite lenta e instabile
+insieme.
+--}}

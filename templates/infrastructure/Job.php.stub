@@ -1,0 +1,129 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{ Namespace }};
+
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
+use Throwable;
+use WidStudios\Foundation\Concerns\TenantAware;
+
+/**
+ * {{-- Quale lavoro esegue, e perche' non puo' avvenire durante la richiesta. --}}
+ */
+final class {{ Class }} implements ShouldQueue
+{
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
+    /**
+     * Obbligatorio.
+     *
+     * Il job viene eseguito minuti dopo, in un processo che non ha mai visto la
+     * richiesta che lo ha generato. Senza questo trait gira nel contesto che il
+     * worker aveva per ultimo: funziona in sviluppo, dove c'e' un tenant solo,
+     * e scrive nel database sbagliato al primo giorno di carico reale.
+     */
+    use TenantAware;
+
+    /**
+     * Limiti espliciti, tutti e tre.
+     *
+     * Un job senza limiti che fallisce puo' ripartire indefinitamente e
+     * saturare i worker: da quel momento nessun altro job viene elaborato, e
+     * la causa non e' evidente.
+     */
+    public int $tries = 3;
+
+    /** @var list<int> */
+    public array $backoff = [30, 120, 300];
+
+    public int $timeout = 120;
+
+    /**
+     * Il costruttore riceve identificatori e scalari, mai model.
+     *
+     * SerializesModels rilegge il model all'esecuzione, ma il payload resta
+     * grande e la riga puo' essere sparita nel frattempo -- con un fallimento
+     * che sembra casuale.
+     */
+    public function __construct(
+        public int ${{ entity }}Id,
+    ) {}
+
+    /**
+     * Nessuna logica di business qui: si delega a un'Action.
+     *
+     * La logica dentro un job non e' invocabile in modo sincrono e non e'
+     * testabile in isolamento: per verificarla bisogna passare dalla coda.
+     */
+    public function handle(/* {{ Class }}Action $action */): void
+    {
+        // Il record puo' essere sparito tra la messa in coda e l'esecuzione:
+        // uscire in silenzio e' corretto, ritentare tre volte no.
+        // ${{ entity }} = {{ Entity }}::find($this->{{ entity }}Id);
+        //
+        // if (${{ entity }} === null) {
+        //     return;
+        // }
+        //
+        // $action->execute(new {{ Class }}Data(${{ entity }}->getKey()));
+    }
+
+    /**
+     * Registra il contesto del fallimento, tenant incluso.
+     *
+     * Senza lo slug, un job fallito nella tabella dei falliti non dice a quale
+     * cliente appartenesse: e' la prima informazione che serve durante un
+     * incidente.
+     */
+    public function failed(Throwable $exception): void
+    {
+        Log::error('{{ Class }} fallito', [
+            '{{ entity }}_id' => $this->{{ entity }}Id,
+            'tenant' => $this->tenantSlug(),
+            'exception' => $exception->getMessage(),
+        ]);
+    }
+
+    /**
+     * Middleware aggiuntivi.
+     *
+     * Si sovrascrive QUESTO metodo, non middleware(): middleware() e' final nel
+     * trait perche' contiene il ripristino del contesto tenant, e
+     * sovrascriverlo lo farebbe sparire senza che nulla lo segnali.
+     *
+     * @return list<object>
+     */
+    protected function jobMiddleware(): array
+    {
+        return [];
+    }
+}
+
+{{--
+IDEMPOTENZA (rules/queue.md R5)
+
+Un job puo' essere eseguito piu' di una volta: un ritentativo dopo un timeout,
+un worker terminato a meta'. Eseguirlo due volte deve produrre lo stesso
+risultato.
+
+  ✗  $batch->increment('quantity', $this->quantity);          il ritentativo raddoppia
+  ✓  $batch->update(['quantity' => $batch->movements()->sum('signed_quantity')]);
+
+Il test dell'idempotenza esegue il job DUE VOLTE e verifica lo stesso esito.
+
+CODA
+Ogni job dichiara la propria coda. Un'importazione da 100.000 righe su 'default'
+ritarda le notifiche che l'utente sta aspettando.
+
+  high · provisioning · default · notifications · documents · integrations · bulk
+
+DISPATCH DA UN'ACTION
+Sempre ->afterCommit(): altrimenti il job puo' partire prima del commit e non
+trovare i dati.
+--}}

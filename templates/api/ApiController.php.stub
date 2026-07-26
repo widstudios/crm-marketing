@@ -1,0 +1,94 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{ Namespace }};
+
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
+
+/**
+ * Endpoint API per {{ Entity }}.
+ *
+ * Un'API pubblicata e' un contratto che non si puo' ritirare: dall'altra parte
+ * c'e' un integratore che non si aggiorna quando lo decidiamo noi. Ogni
+ * decisione presa qui va presa una volta sola e bene.
+ *
+ * Il percorso e' versionato: /api/v1/{{ table }}
+ */
+final class {{ Class }}
+{
+    public function index(Index{{ Entity }}Request $request): JsonResponse
+    {
+        $this->authorize('viewAny', {{ Entity }}::class);
+
+        // Gli elenchi sono SEMPRE paginati, con un massimo dichiarato: senza,
+        // per_page=100000 e' un modo per saturare il server con una richiesta
+        // sola.
+        ${{ entities }} = (new {{ Entity }}Query(/* … */))
+            ->sortBy($request->string('sort', 'id')->toString(), $request->string('dir')->toString())
+            ->paginate($request->integer('per_page', 25));
+
+        return {{ Entity }}Resource::collection(${{ entities }})->response();
+    }
+
+    public function show({{ Entity }} ${{ entity }}): JsonResponse
+    {
+        // Una risorsa non visibile produce 404, non 403: un 403 confermerebbe
+        // che la risorsa esiste (rules/security.md R20).
+        $this->authorize('view', ${{ entity }});
+
+        return {{ Entity }}Resource::make(${{ entity }})->response();
+    }
+
+    public function store(Store{{ Entity }}Request $request, Create{{ Entity }}Action $action): JsonResponse
+    {
+        $this->authorize('create', {{ Entity }}::class);
+
+        ${{ entity }} = $action->execute({{ Entity }}Data::fromRequest($request));
+
+        // 201 con l'intestazione Location: e' la risposta che un integratore si
+        // aspetta, e gli evita una seconda chiamata per sapere dove sia finita
+        // la risorsa.
+        return {{ Entity }}Resource::make(${{ entity }})
+            ->response()
+            ->setStatusCode(Response::HTTP_CREATED)
+            ->header('Location', route('api.v1.{{ entities }}.show', ${{ entity }}));
+    }
+
+    public function destroy({{ Entity }} ${{ entity }}, Delete{{ Entity }}Action $action): Response
+    {
+        $this->authorize('delete', ${{ entity }});
+
+        $action->execute(${{ entity }}->getKey());
+
+        return response()->noContent();
+    }
+
+    // Le operazioni lunghe non fanno attendere: rispondono 202 e proseguono in
+    // coda, con un endpoint di stato da interrogare.
+    //
+    // public function export(Export{{ Entity }}Request $request): JsonResponse
+    // {
+    //     $this->authorize('viewAny', {{ Entity }}::class);
+    //
+    //     $exportId = …;
+    //     Export{{ Entity }}Job::dispatch($exportId)->afterCommit();
+    //
+    //     return response()->json(['export_id' => $exportId], Response::HTTP_ACCEPTED);
+    // }
+}
+
+{{--
+VERIFICARE ENTRAMBI (rules/security.md R19)
+
+Le API verificano sia le ABILITA' DEL TOKEN sia i PERMESSI DELL'UTENTE: i
+permessi possono essere revocati dopo l'emissione del token, e un token
+sopravvissuto alla revoca continuerebbe a funzionare.
+
+CODICI DI STATO
+  200 letto · 201 creato, con Location · 204 cancellato · 202 accettato, in coda
+  401 non autenticato · 403 autenticato senza permesso
+  404 inesistente O di un altro tenant · 409 conflitto di stato
+  422 validazione fallita · 429 limite di frequenza superato
+--}}

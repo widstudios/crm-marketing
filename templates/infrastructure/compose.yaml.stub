@@ -1,0 +1,109 @@
+# ---------------------------------------------------------------------------
+# Ambiente locale — {{ Project }}
+#
+# Obiettivo: un ambiente che si avvia con un comando e assomiglia abbastanza
+# alla produzione da intercettarne i difetti. MySQL e non SQLite, Redis e non
+# il driver di array, un worker vero e non la coda sincrona.
+#
+# La suite di test gira comunque su SQLite in memoria, per velocita', e su
+# MySQL in pipeline (rules/testing.md R10).
+# ---------------------------------------------------------------------------
+
+services:
+
+  app:
+    build:
+      context: .
+      target: runtime
+    volumes:
+      - .:/var/www/html
+    environment:
+      APP_ENV: local
+      APP_DEBUG: 'true'
+    depends_on:
+      database:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+  web:
+    image: nginx:alpine
+    ports:
+      - '${APP_PORT:-8000}:80'
+    volumes:
+      - .:/var/www/html
+      - ./deployment/docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - app
+
+  # Il worker usa la stessa immagine dell'applicazione: una divergenza produce
+  # difetti che si manifestano solo in coda.
+  worker:
+    build:
+      context: .
+      target: runtime
+    command: php artisan queue:work --queue=high,provisioning,default,notifications,documents,integrations,bulk --tries=3 --max-time=3600
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - app
+      - redis
+
+  scheduler:
+    build:
+      context: .
+      target: runtime
+    command: php artisan schedule:work
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - app
+
+  database:
+    image: mysql:8.4
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-cambiami-in-locale}
+      MYSQL_DATABASE: landlord
+    ports:
+      - '${DB_PORT:-3306}:3306'
+    volumes:
+      - database:/var/lib/mysql
+    # L'utente dell'applicazione ha bisogno di CREATE DATABASE: il provisioning
+    # di un tenant crea un database. In produzione questo privilegio va dato a
+    # un'utenza dedicata al provisioning, non a quella che serve le richieste.
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost']
+      interval: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - '${REDIS_PORT:-6379}:6379'
+
+  # Cattura tutta la posta in uscita: un ambiente di prova che invia messaggi
+  # ai clienti e' un incidente, non un difetto.
+  mail:
+    image: axllent/mailpit
+    ports:
+      - '${MAIL_UI_PORT:-8025}:8025'
+
+volumes:
+  database:
+
+{{--
+DOMINI LOCALI
+
+La risoluzione del tenant avviene per dominio. In locale servono voci in
+/etc/hosts, oppure si usa l'header X-Tenant, che la Foundation accetta SOLO in
+local e testing:
+
+  127.0.0.1  admin.localhost acme.localhost globex.localhost
+
+AVVIO
+
+  docker compose up -d
+  docker compose exec app php artisan migrate --database=landlord
+  docker compose exec app php artisan tenants:migrate
+--}}

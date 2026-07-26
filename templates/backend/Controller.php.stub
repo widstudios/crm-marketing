@@ -1,0 +1,69 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{ Namespace }};
+
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
+
+/**
+ * Punto di ingresso web per {{ Entity }}.
+ *
+ * Un controller fa quattro cose, in quest'ordine: autorizza, traduce l'input
+ * in un DTO, invoca un'Action, restituisce una risposta. Nient'altro.
+ *
+ * Il limite pratico e' dieci righe per metodo. Non e' un vincolo estetico: un
+ * corpo piu' lungo significa quasi sempre che una regola di dominio e' finita
+ * qui, dove nessun altro punto di ingresso la applichera'.
+ */
+final class {{ Class }}
+{
+    public function index(Index{{ Entity }}Request $request): View
+    {
+        $this->authorize('viewAny', {{ Entity }}::class);
+
+        return view('{{ module }}.{{ entities }}.index', [
+            '{{ entities }}' => (new {{ Entity }}Query(/* … */))
+                ->sortBy($request->string('sort', 'id')->toString())
+                ->paginate($request->integer('per_page', 25)),
+        ]);
+    }
+
+    public function store(Store{{ Entity }}Request $request, Create{{ Entity }}Action $action): RedirectResponse
+    {
+        // L'autorizzazione sta qui, non nell'Action: un job notturno o
+        // un'importazione devono poter eseguire la stessa operazione senza un
+        // utente da autorizzare.
+        $this->authorize('create', {{ Entity }}::class);
+
+        ${{ entity }} = $action->execute({{ Entity }}Data::fromRequest($request));
+
+        return redirect()
+            ->route('{{ entities }}.show', ${{ entity }})
+            ->with('status', __('{{ module }}.{{ entity }}.created'));
+    }
+
+    // I metodi che agiscono su una risorsa esistente la ricevono per binding:
+    // se non esiste, Laravel risponde 404 prima che il metodo venga invocato.
+    //
+    // public function update(
+    //     Update{{ Entity }}Request $request,
+    //     {{ Entity }} ${{ entity }},
+    //     Update{{ Entity }}Action $action,
+    // ): RedirectResponse {
+    //     $this->authorize('update', ${{ entity }});
+    //     …
+    // }
+}
+
+{{--
+CIO' CHE NON VA IN UN CONTROLLER (rules/laravel.md)
+
+  - logica di business                → Action e dominio
+  - query                             → Query object o repository
+  - trasformazione dei dati           → DTO
+  - autorizzazione implicita
+    (solo il middleware auth)         → authorize() esplicito
+  - try/catch generici                → gestore delle eccezioni
+--}}

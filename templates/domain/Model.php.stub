@@ -1,0 +1,87 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{ Namespace }};
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
+/**
+ * {{-- Una riga che dice che cosa rappresenta l'entita' nel dominio del
+ *      committente, non nello schema. "Un lotto di articoli ricevuto in una
+ *      sola consegna, con una data di scadenza propria" e' utile;
+ *      "Model per la tabella batches" non lo e'. --}}
+ */
+final class {{ Entity }} extends Model
+{
+    use HasFactory;
+
+    /**
+     * Sempre esplicito: con $guarded = [] una richiesta puo' assegnare
+     * qualunque colonna, comprese quelle di stato (rules/security.md R25).
+     */
+    protected $fillable = [
+        // 'article_id',
+        // 'number',
+    ];
+
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            // 'status' => {{ Entity }}Status::class,
+            // 'quantity' => 'decimal:3',
+            // 'expiry_date' => 'immutable_date',
+        ];
+    }
+
+    // ---------------------------------------------------------------------
+    // Relazioni
+    // ---------------------------------------------------------------------
+
+    // public function article(): BelongsTo
+    // {
+    //     return $this->belongsTo(Article::class);
+    // }
+
+    // public function movements(): HasMany
+    // {
+    //     return $this->hasMany(StockMovement::class);
+    // }
+
+    // ---------------------------------------------------------------------
+    // Comportamento di dominio
+    //
+    // Le regole stanno qui, non nelle Action. Un'Action che decide se
+    // l'entita' e' utilizzabile duplica quella decisione nel momento in cui
+    // l'entita' serve altrove -- in un'importazione, in un job, in un altro
+    // caso d'uso -- e le due copie divergeranno.
+    //
+    // I metodi di dominio hanno il nome dell'azione del dominio, non del
+    // cambio di stato: release(), non setStatusToReleased().
+    // ---------------------------------------------------------------------
+
+    // public function assertUsable(): void
+    // {
+    //     if ($this->status !== {{ Entity }}Status::Available) {
+    //         throw {{ Entity }}NotUsable::for($this);
+    //     }
+    // }
+
+    // ---------------------------------------------------------------------
+    // Cio' che NON va in questa classe (rules/laravel.md)
+    //
+    //   - query per la presentazione        → Query object
+    //   - orchestrazione di un caso d'uso   → Action
+    //   - autorizzazione                    → Policy
+    //   - formattazione per la vista        → presentazione
+    //   - Observer: sono azioni invisibili
+    //     che rendono imprevedibile ogni
+    //     salvataggio                       → Action
+    // ---------------------------------------------------------------------
+}

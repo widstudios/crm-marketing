@@ -1,0 +1,58 @@
+<?php
+
+declare(strict_types=1);
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+/*
+ * Migration del database di PIATTAFORMA.
+ *
+ * Destinazione: database/migrations/landlord/
+ *
+ * Qui vivono soltanto: i tenant e i loro domini, gli utenti di piattaforma, la
+ * configurazione globale, i job falliti, il registro dei rilasci.
+ *
+ * Nessuna entita' di dominio, mai. Una tabella di dominio nel landlord e' una
+ * tabella condivisa tra tutti i clienti, cioe' esattamente cio' che il modello
+ * a un database per tenant esiste per evitare.
+ */
+return new class extends Migration
+{
+    /**
+     * La connessione e' dichiarata esplicitamente: dentro un contesto tenant
+     * la connessione predefinita punta al database del cliente, e la migration
+     * creerebbe la tabella nel posto sbagliato.
+     */
+    protected $connection = 'landlord';
+
+    public function up(): void
+    {
+        Schema::connection($this->connection)->create('{{ table }}', function (Blueprint $table): void {
+            $table->id();
+
+            // Lo slug e' l'identificativo stabile del tenant: compare in chiavi
+            // di cache, nomi di database, percorsi di storage e payload dei
+            // job. Non cambia mai.
+            // $table->string('slug', 63)->unique();
+            // $table->string('name', 120);
+            // $table->string('status', 20)->default('provisioning');
+
+            $table->timestamps();
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::connection($this->connection)->dropIfExists('{{ table }}');
+    }
+};
+
+{{--
+IL NOME DEL DATABASE NON E' UNA COLONNA
+
+Si deriva dallo slug (config('foundation.tenancy.database_prefix')): una colonna
+puo' divergere dal database che esiste davvero, e la divergenza si scopre quando
+la migration fallisce su un cliente solo.
+--}}

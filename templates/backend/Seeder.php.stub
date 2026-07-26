@@ -1,0 +1,63 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Database\Seeders\System;
+
+use Illuminate\Database\Seeder;
+
+/**
+ * {{-- Quali dati obbligatori popola. --}}
+ *
+ * Destinazione:
+ *   database/seeders/System/   dati obbligatori, girano a ogni deploy
+ *   database/seeders/Demo/     dati di prova, mai in produzione
+ *
+ * Un seeder di sistema e' IDEMPOTENTE: gira a ogni deploy e a ogni
+ * provisioning di tenant. Un seeder che fallisce alla seconda esecuzione
+ * blocca il deploy, e lo blocca in un momento in cui nessuno si aspetta che
+ * sia lui il problema.
+ */
+final class {{ Class }} extends Seeder
+{
+    public function run(): void
+    {
+        // firstOrCreate, mai create: e' cio' che rende ripetibile l'esecuzione.
+        //
+        // foreach ($this->permissions() as $name) {
+        //     Permission::firstOrCreate(['name' => $name, 'guard_name' => 'tenant']);
+        // }
+
+        // I nuovi permessi vanno assegnati al ruolo amministratore.
+        //
+        // Senza questa riga, ogni funzionalita' nuova e' INVISIBILE A TUTTI
+        // dopo il deploy: esiste, funziona, e nessuno ha il permesso di
+        // vederla. E' un difetto che non si scopre in sviluppo, dove si lavora
+        // con un utente che ha tutti i permessi.
+        //
+        // Role::firstOrCreate(['name' => 'tenant_admin', 'guard_name' => 'tenant'])
+        //     ->syncPermissions(Permission::all());
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function permissions(): array
+    {
+        return [
+            // '{{ permission }}.view',
+            // '{{ permission }}.create',
+            // '{{ permission }}.update',
+            // '{{ permission }}.delete',
+        ];
+    }
+}
+
+{{--
+SEEDER DI PROVA (Demo/)
+
+  - non girano mai in produzione: la verifica dell'ambiente sta nel seeder,
+    non nella procedura di deploy;
+  - nessun dato realistico di persone reali: i dati di prova finiscono in
+    ambienti condivisi e in backup che nessuno ricorda di avere.
+--}}

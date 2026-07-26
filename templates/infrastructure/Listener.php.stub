@@ -1,0 +1,63 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{ Namespace }};
+
+use Illuminate\Contracts\Queue\ShouldQueue;
+use WidStudios\Foundation\Concerns\TenantAware;
+
+/**
+ * Reagisce a {{ Class }}Event.
+ *
+ * Un listener fa una cosa sola, e il suo nome la dice: Send…, Recalculate…,
+ * Notify…. Un listener che fa tre cose e' tre listener, perche' il fallimento
+ * della prima impedisce le altre due senza che nessuno lo abbia deciso.
+ *
+ * Un listener non produce altri eventi: la catena diventa impossibile da
+ * seguire, e un ciclo si scopre quando la coda si riempie.
+ */
+final class {{ Class }} implements ShouldQueue
+{
+    use TenantAware;
+
+    public int $tries = 3;
+
+    /** @var list<int> */
+    public array $backoff = [30, 120, 300];
+
+    public int $timeout = 60;
+
+    public string $queue = 'notifications';
+
+    public function __construct(
+        // private readonly …,
+    ) {}
+
+    public function handle({{ Class }}Event $event): void
+    {
+        // L'evento trasporta identificatori: il listener ricarica cio' che gli
+        // serve.
+        //
+        // ${{ entity }} = {{ Entity }}::find($event->{{ entity }}Id);
+        //
+        // if (${{ entity }} === null) {
+        //     return;
+        // }
+        //
+        // La logica sta nell'Action o nel servizio.
+    }
+}
+
+{{--
+SINCRONO O IN CODA
+
+  in coda    invio di posta, chiamate esterne, ricalcoli, generazione documenti
+  sincrono   solo cio' che deve avvenire nella stessa transazione dell'evento,
+             e in quel caso probabilmente non era un evento
+
+Un listener in coda che fallisce non annulla l'operazione che ha emesso
+l'evento: e' corretto, ed e' la ragione per cui l'evento esiste. Se
+l'operazione DEVE fallire quando la reazione fallisce, non serviva un evento:
+serviva una chiamata dentro l'Action.
+--}}

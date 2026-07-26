@@ -1,0 +1,74 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{ Namespace }};
+
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Notifications\Notification;
+
+/**
+ * {{-- Che cosa comunica, e a chi. --}}
+ *
+ * Una notifica raggiunge una persona: se arriva troppo spesso, o per qualcosa
+ * su cui non puo' fare nulla, viene ignorata -- e con lei quelle che
+ * contavano.
+ *
+ * Il criterio prima di aggiungerne una: il destinatario deve poter FARE
+ * qualcosa in conseguenza. Se no, e' un log, non una notifica.
+ */
+final class {{ Class }} extends Notification implements ShouldQueue
+{
+    use Queueable;
+
+    public string $queue = 'notifications';
+
+    public function __construct(
+        // Identificatori, non model.
+        public readonly int ${{ entity }}Id,
+    ) {}
+
+    /**
+     * I canali rispettano le preferenze dell'utente: una notifica inviata su
+     * un canale che il destinatario ha disattivato e' un difetto, non una
+     * premura.
+     *
+     * @return list<string>
+     */
+    public function via(object $notifiable): array
+    {
+        return ['mail', 'database'];
+    }
+
+    public function toMail(object $notifiable): MailMessage
+    {
+        return (new MailMessage())
+            // Oggetto specifico: "Notifica dal sistema" non dice nulla e
+            // finisce ignorato.
+            ->subject(__('{{ module }}.notifications.{{ entity }}.subject'))
+            ->greeting(__('common.greeting', ['name' => $notifiable->name]))
+            ->line(__('{{ module }}.notifications.{{ entity }}.line'))
+            // Un'azione sola per notifica: due pulsanti significano che il
+            // destinatario deve scegliere, e la maggior parte non sceglie.
+            ->action(__('common.open'), url('/…'))
+            ->salutation(__('common.salutation'));
+    }
+
+    /**
+     * Il record in banca dati contiene identificatori, non testo.
+     *
+     * Cosi' la notifica si puo' ritradurre se l'utente cambia lingua, e non
+     * conserva dati che potrebbero essere sensibili.
+     *
+     * @return array<string, mixed>
+     */
+    public function toArray(object $notifiable): array
+    {
+        return [
+            '{{ entity }}_id' => $this->{{ entity }}Id,
+            'type' => '{{ permission }}.…',
+        ];
+    }
+}

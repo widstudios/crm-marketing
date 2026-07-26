@@ -1,0 +1,62 @@
+import { defineConfig } from 'vite';
+import laravel from 'laravel-vite-plugin';
+import tailwindcss from '@tailwindcss/vite';
+
+/*
+ * Build degli asset per {{ Project }}.
+ *
+ * L'applicazione ha due superfici distinte, e vanno compilate separatamente:
+ * il pannello di gestione (Filament) e la parte pubblica (landing, CMS). Un
+ * bundle solo costringe chi visita la landing page a scaricare tutto il codice
+ * del pannello.
+ */
+export default defineConfig({
+    plugins: [
+        laravel({
+            input: [
+                'resources/css/app.css',
+                'resources/js/app.js',
+                // Superficie pubblica, separata dal pannello.
+                'resources/css/public.css',
+                'resources/js/public.js',
+            ],
+            refresh: [
+                'resources/views/**',
+                'app/Livewire/**',
+                'app/Filament/**',
+            ],
+        }),
+        tailwindcss(),
+    ],
+
+    build: {
+        // Nome con hash: e' cio' che permette di mettere in cache gli asset
+        // per un anno senza rischiare che un utente resti su una versione
+        // vecchia dopo un rilascio.
+        manifest: true,
+
+        // I sorgenti non vanno in produzione: espongono la struttura del
+        // codice e occupano spazio senza servire a nessuno.
+        sourcemap: false,
+
+        rollupOptions: {
+            output: {
+                // Le dipendenze che cambiano di rado stanno in un blocco
+                // separato: un rilascio del codice applicativo non invalida
+                // la loro cache.
+                manualChunks: {
+                    vendor: ['alpinejs'],
+                },
+            },
+        },
+    },
+
+    server: {
+        // In Docker il server di sviluppo deve ascoltare su tutte le
+        // interfacce, altrimenti non e' raggiungibile dall'host.
+        host: '0.0.0.0',
+        hmr: {
+            host: 'localhost',
+        },
+    },
+});

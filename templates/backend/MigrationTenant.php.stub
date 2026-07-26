@@ -1,0 +1,88 @@
+<?php
+
+declare(strict_types=1);
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+/*
+ * Migration del database di TENANT.
+ *
+ * Destinazione: database/migrations/tenant/
+ *
+ * Questa migration non viene eseguita una volta: viene eseguita N volte, su N
+ * database che possono trovarsi in stati leggermente diversi. Ogni regola qui
+ * sotto discende da questo fatto.
+ *
+ * Nessuna colonna tenant_id: il tenant e' il database (rules/sql.md R2).
+ */
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('{{ table }}', function (Blueprint $table): void {
+            $table->id();
+
+            // Ogni chiave esterna ha un vincolo con comportamento esplicito.
+            // restrictOnDelete() e' il default: la cancellazione a cascata e'
+            // raramente cio' che si vuole, e i dati orfani si accumulano in
+            // silenzio.
+            // $table->foreignId('article_id')->constrained()->restrictOnDelete();
+
+            // Lunghezza giustificata dal dominio, non 255 per abitudine.
+            // $table->string('number', 50);
+
+            // decimal, mai float: gli errori di arrotondamento nei totali non
+            // sono recuperabili.
+            // $table->decimal('quantity', 12, 3)->default(0);
+
+            // varchar con cast a enum PHP, mai enum di MySQL: aggiungere un
+            // valore a un enum MySQL richiede un ALTER TABLE su tutti i tenant.
+            // $table->string('status', 20)->default('draft');
+
+            // $table->date('expiry_date');
+            $table->timestamps();
+
+            // I vincoli di unicita' vivono nel database: la validazione
+            // applicativa ha una condizione di corsa tra verifica e
+            // inserimento.
+            // $table->unique(['article_id', 'number']);
+
+            // Ordine nell'indice composto: uguaglianza, intervallo,
+            // ordinamento. Un ordine sbagliato rende l'indice inutile per
+            // quella query.
+            // $table->index(['status', 'expiry_date'], '{{ table }}_status_expiry_index');
+        });
+    }
+
+    /**
+     * Sempre implementato, e provato almeno una volta.
+     *
+     * Senza down(), il rollback su N database e' impossibile: si ripristina da
+     * backup, con tutto cio' che significa.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('{{ table }}');
+    }
+};
+
+{{--
+REGOLE (rules/database.md)
+
+  - una migration, una modifica logica: permette il rollback selettivo;
+  - nessuna scrittura o trasformazione di DATI qui: rende il deploy lentissimo
+    su N database e il rollback impossibile. Le trasformazioni vanno in comandi
+    Artisan riprendibili;
+  - nessun riferimento a model applicativi: il model puo' cambiare o sparire, la
+    migration resta nella storia per sempre;
+  - deve funzionare su un database vuoto (provisioning) e su uno pieno
+    (aggiornamento);
+  - non dipende dai dati esistenti: un tenant puo' non avere righe;
+  - verificata su MySQL, non solo su SQLite.
+
+COLONNA NON NULLABLE SU TABELLA CON DATI
+Tre rilasci: nullable → popolamento con comando → vincolo NOT NULL.
+Farlo in uno solo fa fallire la migration sul primo tenant con dati.
+--}}

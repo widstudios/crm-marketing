@@ -1,0 +1,58 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{ Namespace }};
+
+use Illuminate\Support\Collection;
+use WidStudios\Foundation\Repositories\BaseEloquentRepository;
+
+/**
+ * Accesso alle entita' {{ Entity }}.
+ *
+ * Un metodo qui esiste perche' un caso d'uso lo richiede, e il suo nome dice
+ * quale. Quando il repository si riempie di metodi generici -- where(),
+ * orderBy(), withRelations() -- non sta astraendo niente, e la logica di
+ * lettura torna a sparpagliarsi nei chiamanti.
+ *
+ * @extends BaseEloquentRepository<{{ Entity }}>
+ */
+final class {{ Class }} extends BaseEloquentRepository
+{
+    protected function model(): string
+    {
+        return {{ Entity }}::class;
+    }
+
+    // public function findByNumber(string $number): ?{{ Entity }}
+    // {
+    //     return $this->query()->where('number', $number)->first();
+    // }
+
+    // /**
+    //  * @return Collection<int, {{ Entity }}>
+    //  */
+    // public function expiringWithin(int $days): Collection
+    // {
+    //     return $this->query()
+    //         ->where('status', {{ Entity }}Status::Available)
+    //         ->whereBetween('expiry_date', [now(), now()->addDays($days)])
+    //         ->get();
+    // }
+}
+
+{{--
+EREDITATO DALLA FOUNDATION
+  find() · findOrFail() · exists() · save() · delete() · findForUpdateOrFail()
+
+findForUpdateOrFail() applica un lock pessimistico e va usato, dentro una
+transazione, ogni volta che l'operazione legge un valore, decide in base a
+quello e poi scrive. Fuori da una transazione il lock viene rilasciato subito
+e non protegge nulla.
+
+CIO' CHE NON APPARTIENE A UN REPOSITORY
+  - regole di business                → dominio
+  - proiezioni per la presentazione   → Query object
+  - metodi generici che fanno
+    comporre la query al chiamante    → da nessuna parte
+--}}

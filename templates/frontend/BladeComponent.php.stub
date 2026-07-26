@@ -1,0 +1,58 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{ Namespace }};
+
+use Illuminate\View\Component;
+use Illuminate\View\View;
+
+/**
+ * {{-- Che cosa presenta questo componente. --}}
+ *
+ * Un componente Blade e' presentazione pura: riceve dati gia' pronti e decide
+ * come mostrarli. Non interroga il database, non chiama servizi, non decide
+ * regole.
+ *
+ * La differenza con un componente Livewire: questo non ha stato lato server e
+ * non risponde a interazioni. Se serve reattivita', il componente e' Livewire;
+ * se serve solo riuso di markup, e' Blade -- ed e' molto piu' leggero.
+ */
+final class {{ Class }} extends Component
+{
+    public function __construct(
+        // I tipi sono quelli del dominio: passare un array associativo
+        // significa perdere la verifica e spostare la conoscenza della forma
+        // dei dati dentro il template.
+        // public readonly {{ Entity }} ${{ entity }},
+        // public readonly bool $compact = false,
+    ) {}
+
+    public function render(): View
+    {
+        return view('components.{{ module }}.{{ entity }}');
+    }
+
+    /**
+     * La formattazione per la presentazione appartiene qui, non al template.
+     *
+     * Cosi' e' verificabile con un test, ed e' identica ovunque il componente
+     * venga usato.
+     */
+    // public function badgeColor(): string
+    // {
+    //     return $this->{{ entity }}->status->color();
+    // }
+}
+
+{{--
+CIO' CHE NON VA IN UN COMPONENTE BLADE
+
+  - query                     → il chiamante passa i dati
+  - chiamate a servizi        → il chiamante passa i dati
+  - regole di dominio         → dominio
+  - autorizzazione            → il chiamante decide se mostrarlo
+
+Un componente che interroga il database produce una query per ogni volta che
+compare in un elenco, ed e' invisibile finche' l'elenco non ha cinquanta righe.
+--}}

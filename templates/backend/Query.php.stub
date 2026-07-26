@@ -1,0 +1,58 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{ Namespace }};
+
+use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Facades\DB;
+use WidStudios\Foundation\Repositories\BaseQuery;
+
+/**
+ * {{-- Quale elenco produce, e per quale schermata o esportazione. --}}
+ *
+ * Un Query object e' una lettura con un nome. Esiste perche' le proiezioni per
+ * la presentazione hanno esigenze diverse dalle entita' -- colonne
+ * selezionate, join, aggregazioni -- e farle convivere in un repository lo
+ * trasforma in un contenitore di metodi senza confine.
+ *
+ * Il risultato non si modifica mai: chi legge non scrive.
+ */
+final class {{ Class }} extends BaseQuery
+{
+    /**
+     * Colonne su cui l'ordinamento e' ammesso.
+     *
+     * E' una lista bianca, non un suggerimento: il nome di una colonna non e'
+     * un valore e non puo' essere legato come parametro, quindi un ORDER BY
+     * costruito dalla richiesta e' una via di injection che i parametri legati
+     * non fermano (rules/security.md R21).
+     *
+     * @var list<string>
+     */
+    protected array $sortable = [
+        // 'expiry_date',
+        // 'number',
+    ];
+
+    public function __construct(
+        // private readonly ?int $articleId = null,
+        // private readonly ?{{ Entity }}Status $status = null,
+    ) {}
+
+    protected function builder(): Builder
+    {
+        return DB::table('{{ table }}')
+            // Colonne esplicite: un SELECT * trasferisce dati inutili, e una
+            // colonna aggiunta domani cambia silenziosamente la risposta di
+            // un'API.
+            ->select([
+                // '{{ table }}.id',
+                // '{{ table }}.number',
+            ])
+            // I filtri facoltativi si applicano con when(): senza, la query si
+            // riempie di if e diventa illeggibile.
+            // ->when($this->articleId, fn (Builder $q, int $id): Builder => $q->where('article_id', $id))
+            ;
+    }
+}
