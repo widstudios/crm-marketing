@@ -48,7 +48,7 @@ Legenda stato: ✅ completo · 🟡 in corso · ⬜ da fare
 | 11 | `checklists/` | ✅ | quality gate operativi | [`checklists/README.md`](../checklists/README.md) |
 | 12 | `deployment/` | ✅ | Docker, CI/CD, ambienti, runbook | [`deployment/README.md`](../deployment/README.md) |
 | 13 | `tooling/` | ✅ | configurazioni condivise e script | [`tooling/README.md`](../tooling/README.md) |
-| 14 | `examples/` | ⬜ | walkthrough end-to-end e codice esemplificativo | [`examples/README.md`](../examples/README.md) |
+| 14 | `examples/` | ✅ | walkthrough end-to-end e codice esemplificativo | [`examples/README.md`](../examples/README.md) |
 
 ---
 

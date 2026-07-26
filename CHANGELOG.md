@@ -17,13 +17,34 @@
 ## Unreleased
 
 ### Added
-- Struttura iniziale del repository della Factory (`docs/`, `architecture/`, `rules/`, `agents/`,
-  `prompts/`, `foundation/`, `templates/`, `modules/`, `workflows/`, `checklists/`,
-  `deployment/`, `examples/`, `governance/`, `tooling/`).
+- Struttura completa del repository della Factory: tutte e quattordici le aree sono presenti e
+  collegate ([`governance/roadmap.md`](governance/roadmap.md)).
 - `README.md` di piattaforma, `CLAUDE.md` per gli agenti AI, `CONTRIBUTING.md`.
+- Documentazione trasversale in [`docs/`](docs/README.md): introduzione, avvio, convenzioni,
+  sviluppo, qualità, esercizio, riferimento.
+- Architettura di riferimento e otto ADR in [`architecture/`](architecture/README.md).
+- Standard vincolanti in [`rules/`](rules/README.md), con criterio di verifica per ogni regola.
+- I sedici agenti con prompt completi in [`agents/`](agents/README.md), il protocollo comune e il
+  contratto di [`loop crea`](prompts/loop-crea.md).
+- Il pacchetto `widstudios/foundation` ([`foundation/`](foundation/README.md)): tenancy con i
+  quattro bootstrapper, classi base per Action, DTO, repository e Query object, registro dei
+  moduli, contratto di audit, aiuti per i test di isolamento.
+- Quaranta stub in [`templates/`](templates/README.md), uno per artefatto.
+- Blueprint di modulo e sette schede di catalogo in [`modules/`](modules/README.md).
+- Le quattordici fasi e i tre workflow speciali in [`workflows/`](workflows/README.md).
+- I diciassette quality gate in [`checklists/`](checklists/README.md).
+- Immagini, pipeline, ambienti e cinque runbook in [`deployment/`](deployment/README.md).
+- Sedici script di verifica e le configurazioni condivise in [`tooling/`](tooling/README.md).
+- Walkthrough end-to-end e tre frammenti di codice in [`examples/`](examples/README.md).
+- Pipeline della Factory e modello di pull request in `.github/`.
 
 ### Changed
 - Il prototipo CRM in PHP vanilla è stato spostato in `legacy/` senza modifiche al codice.
+- [`rules/documentation.md`](rules/documentation.md) R3 ammette ora tre profili di documento
+  (`adr`, `agent`, `repository`) con un'ossatura propria, oltre a quella predefinita. L'elenco è
+  chiuso e il profilo si deduce dalla posizione del file.
+- I quattordici workflow di fase hanno «Descrizione» al posto di «Obiettivo», per allinearsi alla
+  struttura obbligatoria dei documenti.
 
 ### Deprecated
 - L'architettura del prototipo `legacy/` non è più il riferimento per nuovi sviluppi.
