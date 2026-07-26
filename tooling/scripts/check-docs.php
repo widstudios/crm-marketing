@@ -59,7 +59,7 @@ const PROFILES = [
 const PLACEHOLDER_PATTERNS = ['TODO', 'TBD', 'FIXME', 'lorem ipsum', 'XXX'];
 
 /** Cartelle escluse: il codice archiviato non segue le convenzioni della Factory. */
-const EXCLUDED = ['/legacy/', '/node_modules/', '/vendor/'];
+const EXCLUDED = ['/legacy/', '/node_modules/', '/vendor/', '/.github/'];
 
 $root = repositoryRoot();
 $all = hasOption($argv, 'all');
@@ -88,7 +88,7 @@ if ($all || (! hasOption($argv, 'sections') && ! hasOption($argv, 'placeholders'
             $report->counted();
             $line = substr_count(substr($contents, 0, $offset), "\n") + 1;
 
-            if (preg_match('#^(https?:|mailto:|#)#', $target) === 1) {
+            if (preg_match('~^(https?:|mailto:|#)~', $target) === 1) {
                 continue;
             }
 
@@ -204,7 +204,7 @@ if ($all || hasOption($argv, 'orphans')) {
         preg_match_all('/\[[^\]]*\]\(([^)\s#]+)/', $contents, $matches);
 
         foreach ($matches[1] as $target) {
-            if (preg_match('#^(https?:|mailto:)#', $target) === 1) {
+            if (preg_match('~^(https?:|mailto:)~', $target) === 1) {
                 continue;
             }
 

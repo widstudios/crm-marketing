@@ -1,0 +1,112 @@
+name: Quality gate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PHP_VERSION: '8.4'
+
+jobs:
+
+  # La Factory è documentazione e codice riutilizzabile: i gate che contano qui
+  # sono la navigabilità dei documenti e l'assenza di segreti. Il resto —
+  # isolamento tenant, policy, schema — si verifica sui progetti generati, e i
+  # relativi script vivono in tooling/scripts/.
+  documentazione:
+    name: Documentazione
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          coverage: none
+
+      - name: Link, ancore, sezioni obbligatorie, segnaposto, orfani
+        run: php tooling/scripts/check-docs.php --all
+
+  agenti:
+    name: Contratto degli agenti
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          coverage: none
+
+      # Ogni agente deve avere le sezioni che il protocollo richiede: «Limiti» e
+      # «Prompt completo» sono obbligatorie lì e in nessun altro documento, e
+      # sono anche quelle che si dimenticano.
+      - run: php tooling/scripts/list-agents.php --check
+
+  segreti:
+    name: Segreti
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Tutta la storia: un segreto rimosso da un file resta nei commit
+          # precedenti, e da lì è recuperabile da chiunque abbia il repository.
+          fetch-depth: 0
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          coverage: none
+
+      - run: php tooling/scripts/check-secrets.php --history
+
+  foundation:
+    name: Foundation
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: foundation
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          coverage: xdebug
+
+      - name: Cache delle dipendenze
+        uses: actions/cache@v4
+        with:
+          path: foundation/vendor
+          key: foundation-${{ hashFiles('foundation/composer.json') }}
+
+      - run: composer install --prefer-dist --no-interaction --no-progress
+
+      - run: composer lint
+      - run: composer analyse
+      - run: composer test
+
+  sintassi:
+    name: Sintassi PHP
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          coverage: none
+
+      # Gli script di tooling non hanno dipendenze e non sono coperti dalla
+      # suite della Foundation: un errore di sintassi qui renderebbe muto un
+      # gate, che è il modo peggiore in cui un controllo può fallire.
+      - name: Verifica sintattica di tooling/ e templates/
+        run: |
+          set -e
+          find tooling -name '*.php' -print0 | xargs -0 -n1 php -l > /dev/null
+          echo "tooling: sintassi verificata"

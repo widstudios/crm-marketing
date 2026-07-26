@@ -1,0 +1,62 @@
+# Analisi statica — configurazione condivisa della Factory.
+#
+# Un progetto la include e aggiunge solo cio' che gli e' proprio:
+#
+#   includes:
+#       - ./vendor/widstudios/factory-tooling/phpstan.neon
+#
+# Livello 8 e non 9: al livello 9 ogni `mixed` proveniente da una libreria
+# richiede un'asserzione, e il rapporto tra difetti trovati e righe di
+# annotazione scritte diventa sfavorevole. La differenza sta in cio' che si
+# accetta di non sapere sui tipi di terze parti, non nella rigidita' sul codice
+# proprio.
+
+parameters:
+
+    level: 8
+
+    paths:
+        - app
+        - database
+        - routes
+        - config
+
+    excludePaths:
+        analyse:
+            - app/../legacy
+            - bootstrap/cache
+            - storage
+
+    # Ogni annotazione mancante e' un'informazione che manca a chi legge, non
+    # solo all'analizzatore.
+    checkMissingIterableValueType: true
+    checkGenericClassInNonGenericObjectType: true
+    checkUninitializedProperties: true
+    checkMissingCallableSignature: true
+
+    # Un confronto sempre vero o sempre falso e' un ramo di codice morto, e il
+    # ramo morto e' quasi sempre il ramo che qualcuno credeva vivo.
+    treatPhpDocTypesAsCertain: true
+    reportUnmatchedIgnoredErrors: true
+
+    # Le funzioni di debug non arrivano in produzione.
+    disallowedFunctionCalls:
+        - dd
+        - dump
+        - var_dump
+        - ray
+        - print_r
+
+    ignoreErrors:
+        # I metodi statici di Eloquent sono documentati sulle facciate: senza
+        # questa riga ogni Model::query() risulta un errore, e il rumore
+        # nasconde i difetti veri.
+        -
+            identifier: staticMethod.notFound
+            path: database/migrations/*
+
+    # Una baseline serve a introdurre l'analisi su un progetto esistente. Non e'
+    # un posto dove mettere gli errori nuovi: check-baseline.php verifica che
+    # non cresca.
+    # includes:
+    #     - phpstan-baseline.neon
