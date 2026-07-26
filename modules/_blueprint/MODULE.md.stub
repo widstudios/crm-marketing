@@ -1,0 +1,119 @@
+# Modulo — {{ Module }}
+
+> {{-- Una riga: a che problema risponde questo modulo. --}}
+
+| | |
+|---|---|
+| **Nome** | `{{ module }}` |
+| **Versione** | {{-- x.y.z --}} |
+| **Categoria** | opzionale · base |
+| **Dipende da** | {{-- elenco, o «nessuno» --}} |
+
+---
+
+## Indice
+
+1. [Descrizione](#descrizione) 2. [Che cosa fornisce](#che-cosa-fornisce)
+3. [Che cosa non fa](#che-cosa-non-fa) 4. [Configurazione](#configurazione)
+5. [Integrazione](#integrazione) 6. [Adozione](#adozione) 7. [Esempi](#esempi)
+8. [Best practice](#best-practice) 9. [Errori comuni](#errori-comuni) 10. [Checklist](#checklist)
+11. [Riferimenti](#riferimenti)
+
+---
+
+## Descrizione
+
+{{-- Due o tre paragrafi: quale problema risolve, perché è un modulo e non parte della Foundation
+     o del progetto, quali decisioni di progetto contiene. --}}
+
+---
+
+## Che cosa fornisce
+
+### Tabelle
+
+| Tabella | Database | Contenuto |
+|---|---|---|
+| `…` | tenant · landlord | … |
+
+### Permessi
+
+| Permesso | Consente |
+|---|---|
+| `{{ module }}.view` | … |
+
+### Comandi
+
+| Comando | Quando |
+|---|---|
+| `{{ module }}:…` | … |
+
+### Eventi
+
+| Evento | Emesso quando |
+|---|---|
+| `…` | … |
+
+### Contratti implementati
+
+| Contratto | Implementazione |
+|---|---|
+| `…` | … |
+
+---
+
+## Che cosa non fa
+
+{{-- La sezione più utile del documento. Elencare esplicitamente i confini: che cosa il modulo NON
+     copre, e dove va cercato invece. Evita che il modulo venga scelto per un problema che non
+     risolve, e che venga esteso fino a risolverlo male. --}}
+
+| Non fa | Dove va cercato |
+|---|---|
+| … | … |
+
+---
+
+## Configurazione
+
+```php
+// config/{{ module }}.php
+return [
+];
+```
+
+| Chiave | Predefinito | Significato |
+|---|---|---|
+| `…` | `…` | … |
+
+---
+
+## Integrazione
+
+{{-- Come il resto del software usa il modulo: contratti, eventi, verifica di attivazione. --}}
+
+---
+
+## Adozione
+
+{{-- Passi per attivare il modulo su un progetto esistente, comandi inclusi. --}}
+
+```bash
+```
+
+---
+
+## Esempi
+
+## Best practice
+
+## Errori comuni
+
+| Errore | Conseguenza | Rimedio |
+|---|---|---|
+
+## Checklist
+
+- [ ] …
+
+## Riferimenti

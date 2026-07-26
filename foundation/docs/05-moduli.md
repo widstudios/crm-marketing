@@ -37,16 +37,25 @@ Decisione di riferimento: [ADR-0004](../../architecture/decisions/0004-modular-s
 
 ## Che cos'è un modulo
 
-| È un modulo | Non è un modulo |
-|---|---|
-| Registro di audit | Il livello di dominio |
-| Gestione documentale | Le entità principali del gestionale |
-| CMS e landing page | L'autenticazione |
-| Notifiche multicanale | Il sistema di permessi |
-| Reportistica | La tenancy |
+| Modulo opzionale | Modulo di base | Non è un modulo |
+|---|---|---|
+| Registro di audit | Tenancy | Il livello di dominio |
+| Gestione documentale | Autenticazione e permessi | Le entità principali del gestionale |
+| CMS e landing page | | Le regole di business del verticale |
+| Notifiche multicanale | | |
+| Reportistica | | |
 
-Il criterio: **si può togliere?** L'autenticazione non si può togliere, e quindi non è un modulo:
-metterla in uno significherebbe avere un modulo che tutti gli altri richiedono, cioè non un modulo.
+Il criterio per la prima colonna è **si può togliere?** Se disattivarlo rompe la suite, non era un
+modulo opzionale.
+
+I **moduli di base** sono sempre attivi e non disattivabili. Sono comunque moduli, e non parte della
+Foundation, per una ragione precisa: hanno tabelle e migration proprie, e la Foundation non impone
+tabelle a nessuno. La Foundation definisce i contratti; questi moduli forniscono l'implementazione
+predefinita che quasi tutti i progetti useranno.
+
+Ciò che non è un modulo in nessun senso è il **dominio del progetto**: le entità del gestionale, le
+sue regole, i suoi casi d'uso. Non sono riutilizzabili altrove, e metterli in un modulo li farebbe
+sembrare tali.
 
 ---
 
