@@ -16,10 +16,11 @@
 7. [Termini di qualità](#termini-di-qualità)
 8. [Termini di esercizio](#termini-di-esercizio)
 9. [Parole da non usare](#parole-da-non-usare)
-10. [Best practice](#best-practice)
-11. [Errori comuni](#errori-comuni)
-12. [Checklist](#checklist)
-13. [Riferimenti](#riferimenti)
+10. [Esempi](#esempi)
+11. [Best practice](#best-practice)
+12. [Errori comuni](#errori-comuni)
+13. [Checklist](#checklist)
+14. [Riferimenti](#riferimenti)
 
 ---
 
@@ -171,6 +172,32 @@ si scrive in italiano. Vedi [`docs/02-conventions/03-language-policy.md`](../02-
 | «best practice» senza fonte | Non verificabile | Citare la regola della Factory |
 | «dovrebbe» in una regola | Ambiguo | «deve» oppure «può», mai «dovrebbe» |
 | «handle», «process», «do» come nomi di metodo | Non dicono nulla | Verbo specifico del dominio |
+
+---
+
+## Esempi
+
+### Lo stesso concetto, detto bene e detto male
+
+```
+✗  «Il sistema filtra i dati per cliente.»
+✓  «Ogni tenant ha il proprio database: non esiste un filtro da applicare.»
+```
+
+La prima frase descrive un'architettura diversa da quella che abbiamo. Detta in una riunione con il
+committente non produce obiezioni; ripetuta a chi scrive il codice produce una colonna `tenant_id`.
+
+### Un termine di dominio tradotto correttamente
+
+| Committente | Documentazione | Codice |
+|---|---|---|
+| «lotto» | lotto | `Batch` |
+| «scarico» | scarico | `StockMovement` con `MovementType::Outbound` |
+| «giacenza» | giacenza | `Batch::$quantity` |
+
+La colonna centrale usa la parola del committente, quella di destra un identificatore inglese. Il
+glossario tiene insieme le due. Senza, la stessa cosa prende tre nomi in tre punti del sistema, e
+nessuno se ne accorge finché non serve cercarla.
 
 ---
 

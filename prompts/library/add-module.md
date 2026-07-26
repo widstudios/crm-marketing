@@ -11,10 +11,23 @@
 
 ## Indice
 
-1. [Quando si usa](#quando-si-usa) 2. [Prerequisiti](#prerequisiti) 3. [Sequenza](#sequenza)
+1. [Descrizione](#descrizione) 2. [Quando si usa](#quando-si-usa) 2. [Prerequisiti](#prerequisiti) 3. [Sequenza](#sequenza)
 4. [Il prompt](#il-prompt) 5. [Definizione di «fatto»](#definizione-di-fatto) 6. [Esempi](#esempi)
 7. [Best practice](#best-practice) 8. [Errori comuni](#errori-comuni) 9. [Checklist](#checklist)
 10. [Riferimenti](#riferimenti)
+
+---
+
+## Descrizione
+
+Un modulo si distingue da una funzionalità per una sola proprietà, ed è verificabile: si può
+togliere. Tutto il resto — le cartelle, il provider, il registro — esiste per rendere possibile
+quella proprietà.
+
+Questo prompt guida la costruzione di un modulo conforme e si chiude sulla verifica che conta:
+`module:disable` seguito da `composer test`. Se la suite non resta verde, il lavoro non è finito, e
+non importa quanto sia completo il modulo: ciò che è stato costruito è una cartella con un nome
+altisonante.
 
 ---
 

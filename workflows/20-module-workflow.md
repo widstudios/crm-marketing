@@ -12,10 +12,22 @@
 
 ## Indice
 
-1. [Quando si usa](#quando-si-usa) 2. [Prerequisiti](#prerequisiti) 3. [Sequenza](#sequenza)
+1. [Descrizione](#descrizione) 2. [Quando si usa](#quando-si-usa) 2. [Prerequisiti](#prerequisiti) 3. [Sequenza](#sequenza)
 4. [La verifica di indipendenza](#la-verifica-di-indipendenza) 5. [Quality gate](#quality-gate)
 6. [Esempi](#esempi) 7. [Best practice](#best-practice) 8. [Errori comuni](#errori-comuni)
 9. [Checklist](#checklist) 10. [Riferimenti](#riferimenti)
+
+---
+
+## Descrizione
+
+Costruire un modulo non è costruire una funzionalità in una cartella diversa. La differenza sta
+tutta nell'ultimo passo: la verifica di indipendenza, che stabilisce se ciò che è stato scritto è
+davvero rimovibile o se lo è solo nelle intenzioni.
+
+Questo workflow descrive la sequenza dalla progettazione del contratto fino a quella verifica, e i
+gate che la accompagnano. È più corto del percorso completo — un modulo non parte da un brief ma da
+un confine già deciso — e ha un gate in più, che il percorso ordinario non ha.
 
 ---
 

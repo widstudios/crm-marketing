@@ -16,10 +16,11 @@
 8. [Percorso: avvio di un progetto](#percorso-avvio-di-un-progetto)
 9. [Percorso: agente AI](#percorso-agente-ai)
 10. [Letture di riferimento continuo](#letture-di-riferimento-continuo)
-11. [Best practice](#best-practice)
-12. [Errori comuni](#errori-comuni)
-13. [Checklist](#checklist)
-14. [Riferimenti](#riferimenti)
+11. [Esempi](#esempi)
+12. [Best practice](#best-practice)
+13. [Errori comuni](#errori-comuni)
+14. [Checklist](#checklist)
+15. [Riferimenti](#riferimenti)
 
 ---
 
@@ -186,6 +187,29 @@ Documenti da conoscere per posizione, da consultare quando serve:
 | [Configurazione](04-configuration-reference.md) | configurando |
 | [Troubleshooting](05-troubleshooting.md) | quando qualcosa non funziona |
 | [Indice delle regole](../../rules/README.md) | in ogni dubbio normativo |
+
+---
+
+## Esempi
+
+### Un percorso seguito per intero
+
+Chi arriva sul progetto come sviluppatore backend legge, in quest'ordine:
+[principi](../00-introduction/04-principles.md) → [multitenancy](../../architecture/03-multitenancy-overview.md)
+→ [livelli](../../architecture/02-layers.md) → [action-pattern](../../rules/action-pattern.md) →
+[Foundation](../../foundation/README.md).
+
+Sono cinque documenti, circa due ore. Al termine sa **perché** un'Action riceve un DTO, e non deve
+chiederlo alla prima revisione.
+
+### Un percorso saltato
+
+Chi comincia da `rules/laravel.md` trova un elenco di divieti senza le ragioni: sa che non deve
+mettere logica nei controller, non sa perché, e alla prima scadenza stretta il divieto perde contro
+la fretta.
+
+L'ordine dei percorsi non è una cortesia: le regole senza il contesto che le motiva vengono
+applicate finché non costano, e abbandonate quando costano.
 
 ---
 

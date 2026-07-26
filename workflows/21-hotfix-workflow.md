@@ -11,10 +11,22 @@
 
 ## Indice
 
-1. [Quando si usa](#quando-si-usa) 2. [Cosa cambia rispetto al percorso ordinario](#cosa-cambia-rispetto-al-percorso-ordinario)
+1. [Descrizione](#descrizione) 2. [Quando si usa](#quando-si-usa) 2. [Cosa cambia rispetto al percorso ordinario](#cosa-cambia-rispetto-al-percorso-ordinario)
 3. [Sequenza](#sequenza) 4. [Quality gate](#quality-gate) 5. [Dopo l'hotfix](#dopo-lhotfix)
 6. [Esempi](#esempi) 7. [Best practice](#best-practice) 8. [Errori comuni](#errori-comuni)
 9. [Checklist](#checklist) 10. [Riferimenti](#riferimenti)
+
+---
+
+## Descrizione
+
+Un hotfix è il percorso ordinario a cui sono state tolte alcune fasi, con una decisione esplicita
+su quali e perché. Non è il percorso ordinario fatto in fretta: la differenza è che le omissioni
+sono dichiarate e recuperate dopo, invece di essere scoperte più avanti da qualcun altro.
+
+Questo documento dice quali fasi restano obbligatorie anche sotto pressione — il test rosso prima
+della correzione e il gate di sicurezza non si saltano mai — e che cosa va ripreso una volta
+rientrata l'urgenza.
 
 ---
 

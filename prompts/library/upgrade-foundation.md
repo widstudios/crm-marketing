@@ -11,10 +11,23 @@
 
 ## Indice
 
-1. [Quando si usa](#quando-si-usa) 2. [Prerequisiti](#prerequisiti) 3. [Sequenza](#sequenza)
+1. [Descrizione](#descrizione) 2. [Quando si usa](#quando-si-usa) 2. [Prerequisiti](#prerequisiti) 3. [Sequenza](#sequenza)
 4. [Il prompt](#il-prompt) 5. [Definizione di «fatto»](#definizione-di-fatto) 6. [Esempi](#esempi)
 7. [Best practice](#best-practice) 8. [Errori comuni](#errori-comuni) 9. [Checklist](#checklist)
 10. [Riferimenti](#riferimenti)
+
+---
+
+## Descrizione
+
+Aggiornare la Foundation tocca tutti i progetti, e la stessa modifica ha conseguenze diverse su
+ognuno. Non è un aggiornamento di dipendenza come gli altri: la Foundation contiene i punti in cui
+l'isolamento tra clienti dipende dal codice, e una regressione lì non produce un guasto ma una fuga
+di dati.
+
+Questo prompt distingue i tre casi — patch, minor, major — perché richiedono verifiche diverse. Per
+una major la guida di migrazione in `governance/migrations/` non è un documento di supporto: è la
+procedura, e va seguita nell'ordine in cui è scritta.
 
 ---
 

@@ -18,10 +18,11 @@
 9. [Filament](#filament)
 10. [Prestazioni](#prestazioni)
 11. [Deploy](#deploy)
-12. [Best practice](#best-practice)
-13. [Errori comuni](#errori-comuni)
-14. [Checklist](#checklist)
-15. [Riferimenti](#riferimenti)
+12. [Esempi](#esempi)
+13. [Best practice](#best-practice)
+14. [Errori comuni](#errori-comuni)
+15. [Checklist](#checklist)
+16. [Riferimenti](#riferimenti)
 
 ---
 
@@ -161,6 +162,33 @@ secondo [`docs/05-operations/05-incident-management.md`](../05-operations/05-inc
 | Asset non trovati | build non eseguita | contenuto di `public/build` | `npm run build` nell'immagine |
 | Alcuni tenant funzionano, altri no | migration non allineate | `tenants:migrate:status` | riallineare |
 | Rollback non ripristina | migration distruttiva applicata | storia delle migration | ripristino da backup |
+
+---
+
+## Esempi
+
+### Diagnosi condotta bene
+
+> *«Un cliente segnala che la dashboard mostra numeri che non sono i suoi.»*
+
+1. **Riprodurre**: aprire la dashboard di due tenant in sequenza. I numeri del secondo coincidono
+   con quelli del primo.
+2. **Restringere**: il difetto riguarda solo i widget, non gli elenchi. Gli elenchi leggono dal
+   database, i widget dalla cache.
+3. **Individuare**: `grep -rn "Cache::" app/Filament/Widgets/` mostra una chiave scritta a mano.
+4. **Correggere**: `TenantCacheKey::for(...)`.
+5. **Impedire il ritorno**: test di isolamento della cache, più un test di architettura che vieta
+   `Cache::` fuori dai `Concerns`.
+
+Il quinto passo è quello che distingue una correzione da una diagnosi finita. Senza, lo stesso
+difetto ricompare in un altro widget fra sei mesi.
+
+### Diagnosi condotta male
+
+> *«Ho svuotato la cache e adesso funziona.»*
+
+Il sintomo è sparito e la causa è intatta: tornerà al prossimo popolamento della cache, e nel
+frattempo dei dati di un cliente sono stati mostrati a un altro senza che nessuno lo registri.
 
 ---
 

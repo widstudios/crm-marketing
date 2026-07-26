@@ -11,10 +11,22 @@
 
 ## Indice
 
-1. [Quando si usa](#quando-si-usa) 2. [Prerequisiti](#prerequisiti) 3. [Sequenza](#sequenza)
+1. [Descrizione](#descrizione) 2. [Quando si usa](#quando-si-usa) 2. [Prerequisiti](#prerequisiti) 3. [Sequenza](#sequenza)
 4. [Il prompt](#il-prompt) 5. [Definizione di «fatto»](#definizione-di-fatto) 6. [Esempi](#esempi)
 7. [Best practice](#best-practice) 8. [Errori comuni](#errori-comuni) 9. [Checklist](#checklist)
 10. [Riferimenti](#riferimenti)
+
+---
+
+## Descrizione
+
+Correggere un difetto ha una sequenza obbligata, e l'ordine dei primi due passi non è negoziabile:
+**prima il test che fallisce, poi la correzione**.
+
+Non è una formalità. Il test rosso dimostra due cose che nessun'altra verifica dimostra: che il
+problema è stato capito — perché è stato riprodotto — e che non tornerà, perché da quel momento
+qualcosa lo sorveglia. Una correzione senza test rosso è una modifica che sembra risolvere, e il
+difetto torna a distanza di mesi, quando nessuno ricorda più il contesto.
 
 ---
 

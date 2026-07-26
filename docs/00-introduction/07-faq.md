@@ -14,10 +14,11 @@
 5. [Sullo stack](#sullo-stack)
 6. [Sul lavoro quotidiano](#sul-lavoro-quotidiano)
 7. [Sui costi e sui tempi](#sui-costi-e-sui-tempi)
-8. [Best practice](#best-practice)
-9. [Errori comuni](#errori-comuni)
-10. [Checklist](#checklist)
-11. [Riferimenti](#riferimenti)
+8. [Esempi](#esempi)
+9. [Best practice](#best-practice)
+10. [Errori comuni](#errori-comuni)
+11. [Checklist](#checklist)
+12. [Riferimenti](#riferimenti)
 
 ---
 
@@ -251,6 +252,32 @@ regole specifiche del framework: una parte importante, ma non la maggioranza.
 
 Una piattaforma che non sopravvive a un cambio di framework è costruita male, ed è un criterio da
 tenere presente quando si scrive.
+
+---
+
+## Esempi
+
+### Una domanda posta bene
+
+> «La Factory impone Filament. Il nostro cliente vuole un'interfaccia su misura: dobbiamo
+> rinunciare?»
+
+No: Filament è il pannello di **gestione**, non l'interfaccia pubblica. La superficie rivolta agli
+utenti finali si costruisce con Livewire e Blade, e i due convivono nello stesso progetto. La
+domanda è posta bene perché dichiara il vincolo reale — l'aspetto dell'interfaccia — invece di
+chiedere in astratto se lo stack sia negoziabile.
+
+### Una domanda che nasconde un'altra domanda
+
+> «Possiamo usare un database solo con una colonna `tenant_id`? Sarebbe più semplice.»
+
+La domanda vera è: *quanto costa il modello a un database per tenant, e ne vale la pena?* La
+risposta sta in [ADR-0002](../../architecture/decisions/0002-tenant-isolation-strategy.md), che
+dichiara anche le soglie oltre le quali la decisione va rivalutata — più di 500 tenant, migration
+oltre i 60 minuti, esigenza di reportistica cross-tenant in tempo reale.
+
+Una decisione con soglie di rivalutazione dichiarate si può discutere con i numeri. Senza, si
+discute con le opinioni.
 
 ---
 

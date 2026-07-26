@@ -21,6 +21,7 @@
 8. [Mappa della documentazione](#mappa-della-documentazione)
 9. [Stato del repository](#stato-del-repository)
 10. [Convenzioni di contribuzione](#convenzioni-di-contribuzione)
+11. [Riferimenti](#riferimenti)
 
 ---
 
@@ -244,6 +245,33 @@ e come esempio di ciò che la Factory sostituisce.
 - Le decisioni strutturali si registrano come ADR in [`architecture/decisions/`](architecture/decisions/README.md).
 - Il formato dei commit è definito in [`rules/commit.md`](rules/commit.md).
 - La Factory è versionata: vedi [`governance/versioning.md`](governance/versioning.md).
+
+---
+
+## Riferimenti
+
+**Da dove si comincia**
+
+| Domanda | Documento |
+|---|---|
+| Che cos'è questo repository | [`docs/00-introduction/02-what-is-ai-factory.md`](docs/00-introduction/02-what-is-ai-factory.md) |
+| Devo lavorarci: da dove parto | [`docs/06-reference/06-reading-paths.md`](docs/06-reference/06-reading-paths.md) |
+| Sono un agente AI | [`CLAUDE.md`](CLAUDE.md) → [`agents/00-agent-protocol.md`](agents/00-agent-protocol.md) |
+| Devo avviare un progetto nuovo | [`docs/01-getting-started/01-new-project.md`](docs/01-getting-started/01-new-project.md) |
+
+**Gli indici delle aree**
+
+- [`docs/README.md`](docs/README.md) — spiegazioni, guide, riferimento
+- [`architecture/README.md`](architecture/README.md) — architettura e ADR
+- [`rules/README.md`](rules/README.md) — standard vincolanti
+- [`agents/README.md`](agents/README.md) — i sedici agenti
+- [`prompts/README.md`](prompts/README.md) — `loop crea` e la libreria dei prompt
+- [`foundation/README.md`](foundation/README.md) — il pacchetto PHP riutilizzabile
+- [`templates/README.md`](templates/README.md) — gli stub per ogni artefatto
+- [`modules/README.md`](modules/README.md) — il catalogo dei moduli
+- [`workflows/README.md`](workflows/README.md) — le quattordici fasi
+- [`checklists/README.md`](checklists/README.md) — i quality gate
+- [`governance/README.md`](governance/README.md) — ruoli, versionamento, roadmap
 
 ---
 

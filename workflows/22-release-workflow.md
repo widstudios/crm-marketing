@@ -11,10 +11,24 @@
 
 ## Indice
 
-1. [Quando si usa](#quando-si-usa) 2. [Prerequisiti](#prerequisiti) 3. [Sequenza](#sequenza)
+1. [Descrizione](#descrizione) 2. [Quando si usa](#quando-si-usa) 2. [Prerequisiti](#prerequisiti) 3. [Sequenza](#sequenza)
 4. [Rollback](#rollback) 5. [Osservazione](#osservazione) 6. [Comunicazione](#comunicazione)
 7. [Esempi](#esempi) 8. [Best practice](#best-practice) 9. [Errori comuni](#errori-comuni)
 10. [Checklist](#checklist) 11. [Riferimenti](#riferimenti)
+
+---
+
+## Descrizione
+
+Un rilascio si prepara, si esegue e si verifica — e prima di tutto questo si stabilisce come si
+torna indietro. Un rilascio senza percorso di ritorno provato non è un rilascio: è una scommessa.
+
+Con un database per tenant il rilascio ha una proprietà che altrove non esiste: le migration girano
+N volte, su N database che possono trovarsi in stati leggermente diversi. La durata va misurata
+prima, su volumi reali, non scoperta durante.
+
+Questo workflow descrive la sequenza completa; il gate corrispondente è la
+[checklist di rilascio](../checklists/release-checklist.md).
 
 ---
 

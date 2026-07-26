@@ -182,6 +182,27 @@ generico («rifai meglio») fa rigenerare anche ciò che era corretto.
 
 ---
 
+## Comandi correlati
+
+`loop crea` genera un progetto **da zero**. Su un progetto che esiste già non si usa: le modifiche
+incrementali hanno prompt propri, con un ambito più stretto e gate diversi.
+
+| Comando | Quando | Fasi coinvolte |
+|---|---|---|
+| [`loop feature`](library/add-feature.md) | una funzionalità nuova su un progetto esistente | 1-2, 4-9, 12 |
+| [`loop modulo`](library/add-module.md) | un modulo nuovo, con verifica di indipendenza | 2-9, 12 |
+| [`loop fix`](library/fix-bug.md) | correzione di un difetto, con test rosso prima | 4, 8-9 |
+| [`loop foundation`](library/upgrade-foundation.md) | aggiornamento della Foundation | 0, 8-9, 13 |
+
+La differenza non è di dimensione ma di **contesto**: `loop crea` parte da un brief e non ha nulla
+da rispettare tranne le regole; gli altri partono da un sistema che funziona e devono lasciarlo
+funzionante. È la ragione per cui hanno precondizioni diverse — la prima di tutte è che la suite sia
+verde **prima** di iniziare, altrimenti non si distingue ciò che si è rotto da ciò che era già rotto.
+
+L'elenco completo è in [`prompts/library/README.md`](library/README.md).
+
+---
+
 ## Esempi
 
 ### Esempio 1 — esecuzione completa

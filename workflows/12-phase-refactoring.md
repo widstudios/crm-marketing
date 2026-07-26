@@ -14,14 +14,14 @@
 
 ## Indice
 
-1. [Obiettivo](#obiettivo) 2. [Input](#input) 3. [Attività](#attività) 4. [Output](#output)
+1. [Descrizione](#descrizione) 2. [Input](#input) 3. [Attività](#attività) 4. [Output](#output)
 5. [Quality gate](#quality-gate) 6. [Fermate possibili](#fermate-possibili) 7. [Esempi](#esempi)
 8. [Best practice](#best-practice) 9. [Errori comuni](#errori-comuni) 10. [Checklist](#checklist)
 11. [Riferimenti](#riferimenti)
 
 ---
 
-## Obiettivo
+## Descrizione
 
 Migliorare la struttura **senza cambiare il comportamento**, e registrare il debito che si sceglie di non affrontare.
 

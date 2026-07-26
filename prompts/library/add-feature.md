@@ -11,10 +11,24 @@
 
 ## Indice
 
-1. [Quando si usa](#quando-si-usa) 2. [Prerequisiti](#prerequisiti) 3. [Sequenza](#sequenza)
+1. [Descrizione](#descrizione) 2. [Quando si usa](#quando-si-usa) 2. [Prerequisiti](#prerequisiti) 3. [Sequenza](#sequenza)
 4. [Il prompt](#il-prompt) 5. [Definizione di «fatto»](#definizione-di-fatto) 6. [Esempi](#esempi)
 7. [Best practice](#best-practice) 8. [Errori comuni](#errori-comuni) 9. [Checklist](#checklist)
 10. [Riferimenti](#riferimenti)
+
+---
+
+## Descrizione
+
+Aggiungere una funzionalità a un progetto che funziona è un problema diverso dal costruirlo. Non
+c'è un brief da interpretare, c'è un sistema da rispettare: convenzioni già scelte, entità che
+esistono, utenti che usano ciò che c'è oggi.
+
+Il rischio non è sbagliare la funzionalità: è **rompere qualcos'altro** mentre la si aggiunge, e
+scoprirlo da chi la usa. Per questo la prima precondizione di questo prompt è che la suite sia verde
+prima di iniziare — altrimenti non si distingue ciò che si è rotto da ciò che era già rotto — e
+l'ultima verifica è che sia ancora verde alla fine, senza che nessun test sia stato modificato per
+farlo passare.
 
 ---
 

@@ -12,10 +12,11 @@
 3. [Percorsi di lettura](#percorsi-di-lettura)
 4. [Indice completo](#indice-completo)
 5. [Documentazione fuori da `docs/`](#documentazione-fuori-da-docs)
-6. [Best practice di consultazione](#best-practice-di-consultazione)
-7. [Errori comuni](#errori-comuni)
-8. [Checklist](#checklist)
-9. [Riferimenti](#riferimenti)
+6. [Esempi](#esempi)
+7. [Best practice di consultazione](#best-practice-di-consultazione)
+8. [Errori comuni](#errori-comuni)
+9. [Checklist](#checklist)
+10. [Riferimenti](#riferimenti)
 
 ---
 
@@ -203,6 +204,30 @@ a ciò che descrivono.
 | [`governance/`](../governance/README.md) | Evoluzione della Factory | alta |
 
 In caso di conflitto vale la gerarchia definita in [CLAUDE.md](../CLAUDE.md#gerarchia-delle-fonti-di-verità).
+
+---
+
+## Esempi
+
+### Trovare la risposta giusta al primo tentativo
+
+> *«Dove sta scritto come si nomina una tabella?»*
+
+Il tipo di documento indica dove cercare: è una **regola**, quindi sta in `rules/`, e precisamente in
+[naming.md](../rules/naming.md). Non in `docs/`, che spiega, e non in `architecture/`, che decide.
+
+> *«Perché le tabelle non hanno una colonna `tenant_id`?»*
+
+È una **decisione**, quindi sta in `architecture/decisions/`:
+[ADR-0002](../architecture/decisions/0002-tenant-isolation-strategy.md).
+
+> *«Come faccio a far partire il progetto in locale?»*
+
+È una **guida**, quindi sta in `docs/01-getting-started/`:
+[ambiente locale](01-getting-started/02-local-environment.md).
+
+I quattro tipi di documento — spiegazione, guida, regola, riferimento — servono a questo: sapere
+dove cercare prima di cercare.
 
 ---
 

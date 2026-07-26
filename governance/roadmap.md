@@ -13,10 +13,11 @@
 4. [Criteri di completamento](#criteri-di-completamento)
 5. [Backlog](#backlog)
 6. [Storico versioni](#storico-versioni)
-7. [Best practice](#best-practice)
-8. [Errori comuni](#errori-comuni)
-9. [Checklist](#checklist)
-10. [Riferimenti](#riferimenti)
+7. [Esempi](#esempi)
+8. [Best practice](#best-practice)
+9. [Errori comuni](#errori-comuni)
+10. [Checklist](#checklist)
+11. [Riferimenti](#riferimenti)
 
 ---
 
@@ -139,6 +140,23 @@ Idee accettate ma non ancora pianificate:
 | Versione | Data | Contenuto principale |
 |---|---|---|
 | `factory-v0.1.0` | 2026-07-25 | Struttura del repository, documenti di root, governance |
+
+---
+
+## Esempi
+
+### Un'area dichiarata completa
+
+`rules/` passa a ✅ quando: tutti i documenti previsti esistono, ognuno ha le sezioni obbligatorie,
+ogni regola ha un criterio di verifica dichiarato, i link risolvono e l'area è collegata dagli
+indici. Non quando «c'è abbastanza materiale».
+
+### Un'area che sembra completa e non lo è
+
+`templates/` con quaranta stub scritti ma senza il README che li elenca resta 🟡: gli stub esistono
+e nessuno li trova, il che per la Factory equivale a non averli.
+
+Il criterio è sempre lo stesso: **un artefatto non collegato non esiste.**
 
 ---
 

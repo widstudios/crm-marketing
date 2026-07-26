@@ -80,6 +80,27 @@ Per questo la documentazione è parte della definizione di «fatto», non un'att
 
 *Verifica:* `php tooling/scripts/check-docs.php --sections`. *Livello: vincolante.*
 
+**R3.1.** Tre classi di documento hanno un'ossatura **propria**, perché hanno un contratto proprio
+già dichiarato altrove. L'elenco è chiuso: un documento che non rientra in queste tre segue R3.
+
+| Profilo | Documenti | Sezioni obbligatorie |
+|---|---|---|
+| `adr` | `architecture/decisions/0NNN-*.md` | Indice, Contesto, Decisione, Alternative, Conseguenze, Riferimenti |
+| `agent` | `agents/NN-*.md`, escluso il protocollo | Indice, Identità, Responsabilità, Input, Output, Limiti, Workflow, Quality gate, Prompt completo, Errori comuni, Riferimenti |
+| `repository` | `README.md` e `CONTRIBUTING.md` di primo livello | Riferimenti |
+
+*Motivo:* una ADR è una **decisione datata**, non una guida: non ha «best practice», ha alternative
+valutate e conseguenze accettate; e una checklist dentro una ADR suggerirebbe che la decisione sia
+qualcosa da applicare passo passo invece che da rispettare. La specifica di un agente ha sezioni
+obbligatorie che nessun altro documento ha — «Limiti» e «Prompt completo» — definite nel
+[protocollo agenti](../agents/00-agent-protocol.md).
+
+*Il profilo si deduce dalla posizione del file, mai da un'intestazione dichiarata dall'autore:* un
+profilo dichiarabile sarebbe un profilo scelto per comodità il giorno in cui una sezione costa
+fatica.
+
+*Verifica:* `php tooling/scripts/check-docs.php --sections`. *Livello: vincolante.*
+
 **R4.** Le prescrizioni usano «deve» o «può», mai «dovrebbe».
 *Verifica:* ricerca in CI.
 
