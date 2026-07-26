@@ -35,16 +35,16 @@ Legenda stato: ✅ completo · 🟡 in corso · ⬜ da fare
 | # | Area | Stato | Contenuto atteso | Documento indice |
 |---|---|---|---|---|
 | 1 | Root e governance | ✅ | README, CLAUDE.md, CONTRIBUTING, CHANGELOG, governance | [`governance/README.md`](README.md) |
-| 2 | `docs/` | 🟡 | introduzione, getting started, convenzioni, sviluppo, qualità, operations, reference | [`docs/README.md`](../docs/README.md) |
-| 3 | `architecture/` | ⬜ | architettura di riferimento, multitenancy, moduli, ADR | [`architecture/README.md`](../architecture/README.md) |
-| 4 | `rules/` | ⬜ | standard vincolanti per linguaggio, framework, pattern, processo | [`rules/README.md`](../rules/README.md) |
-| 5 | `agents/` | ⬜ | protocollo + 16 agenti con prompt completi | [`agents/README.md`](../agents/README.md) |
-| 6 | `prompts/` | ⬜ | system prompt, `loop crea`, prompt di fase, snippet | [`prompts/README.md`](../prompts/README.md) |
-| 7 | `foundation/` | ⬜ | pacchetto PHP riutilizzabile + documentazione | [`foundation/README.md`](../foundation/README.md) |
+| 2 | `docs/` | ✅ | introduzione, getting started, convenzioni, sviluppo, qualità, operations, reference | [`docs/README.md`](../docs/README.md) |
+| 3 | `architecture/` | ✅ | architettura di riferimento, multitenancy, moduli, ADR | [`architecture/README.md`](../architecture/README.md) |
+| 4 | `rules/` | ✅ | standard vincolanti per linguaggio, framework, pattern, processo | [`rules/README.md`](../rules/README.md) |
+| 5 | `agents/` | ✅ | protocollo + 16 agenti con prompt completi | [`agents/README.md`](../agents/README.md) |
+| 6 | `prompts/` | ✅ | system prompt, `loop crea`, prompt di fase, snippet | [`prompts/README.md`](../prompts/README.md) |
+| 7 | `foundation/` | ✅ | pacchetto PHP riutilizzabile + documentazione | [`foundation/README.md`](../foundation/README.md) |
 | 8 | `templates/` | ⬜ | stub per ogni artefatto Laravel/Filament | [`templates/README.md`](../templates/README.md) |
 | 9 | `modules/` | ⬜ | blueprint di modulo + catalogo | [`modules/README.md`](../modules/README.md) |
-| 10 | `workflows/` | ⬜ | master workflow + workflow di fase | [`workflows/README.md`](../workflows/README.md) |
-| 11 | `checklists/` | ⬜ | quality gate operativi | [`checklists/README.md`](../checklists/README.md) |
+| 10 | `workflows/` | ✅ | master workflow + workflow di fase | [`workflows/README.md`](../workflows/README.md) |
+| 11 | `checklists/` | ✅ | quality gate operativi | [`checklists/README.md`](../checklists/README.md) |
 | 12 | `deployment/` | ⬜ | Docker, CI/CD, ambienti, runbook | [`deployment/README.md`](../deployment/README.md) |
 | 13 | `tooling/` | ⬜ | configurazioni condivise e script | [`tooling/README.md`](../tooling/README.md) |
 | 14 | `examples/` | ⬜ | walkthrough end-to-end e codice esemplificativo | [`examples/README.md`](../examples/README.md) |

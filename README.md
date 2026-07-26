@@ -125,7 +125,7 @@ Ogni cartella ha un proprio `README.md` che ne è l'indice autorevole.
 
 1. Leggi [`modules/README.md`](modules/README.md) e il [blueprint](modules/_blueprint/README.md).
 2. Copia il blueprint, compila il `module.json`.
-3. Segui [`workflows/11-module-workflow.md`](workflows/11-module-workflow.md).
+3. Segui [`workflows/20-module-workflow.md`](workflows/20-module-workflow.md).
 
 ### Scenario C — sono uno sviluppatore umano
 

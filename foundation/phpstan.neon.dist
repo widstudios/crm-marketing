@@ -1,0 +1,12 @@
+parameters:
+    level: 8
+    paths:
+        - src
+    treatPhpDocTypesAsCertain: false
+    ignoreErrors:
+        # I metodi save()/delete() sono dichiarati sul contratto con `object`
+        # per non legare il contratto a Eloquent; l'implementazione Eloquent
+        # sa che riceve un Model.
+        -
+            identifier: method.notFound
+            path: src/Repositories/BaseEloquentRepository.php
